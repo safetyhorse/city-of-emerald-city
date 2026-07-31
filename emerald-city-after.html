@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<!--
+  City of Emerald City — Public Services (rebuilt, 2026)
+  The "AFTER" file. Same site, same identity — modern CSS, and note the
+  thing that's missing at the bottom of this file: there is no <script>.
+  jQuery is gone. Every behavior it used to power is now native.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>City of Emerald City &mdash; Public Services</title>
+<style>
+/* Declare the cascade order once, up front. Later layers win over earlier
+   ones regardless of selector specificity — so we never fight the cascade
+   with over-qualified selectors or !important again. */
+@layer reset, base, layout, components;
+
+/* ---- design tokens: one source of truth (was: #046a38 typed 40 times) ---- */
+:root {
+  color-scheme: light dark;              /* opt into native dark mode */
+  --brand: #046a38;                      /* emerald */
+  --accent: #f0c419;                     /* gold — the yellow brick */
+  --brand-dark: color-mix(in oklab, var(--brand), black 22%);
+  --brand-ink: #ffffff;
+
+  --surface:   light-dark(#ffffff, #0f1512);
+  --surface-2: light-dark(#e9f5ef, #16211b);
+  --surface-3: light-dark(#f4faf6, #19241e);
+  --text:      light-dark(#2a2a2a, #e6efe9);
+  --text-muted:light-dark(#5f6f66, #9db4a8);
+  --border:    light-dark(#cfd8d2, #2c3a32);
+  --link:      light-dark(#0a6b3d, #74d6a0);
+  --danger:    light-dark(#b00020, #ff8a95);
+
+  --brand-tint: color-mix(in oklab, var(--brand), var(--surface) 92%);
+  --radius: 6px;
+  --gutter: 1.25rem;
+  --wrap: 60rem;
+
+  scroll-padding-block-start: 3.5rem;    /* anchors stop clear of the sticky bar */
+}
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }  /* no vendor prefixes in 2026 */
+  body, h1, h2, h3, h4, p, ul, figure { margin: 0; }
+  ul { list-style: none; padding: 0; }
+  img { max-inline-size: 100%; display: block; }
+  :where(a) { color: var(--link); }
+  /* keyboard users get a focus ring; mouse users don't — the honest version
+     of the old `outline: none` (which just deleted accessibility) */
+  :where(:focus-visible) { outline: 2px solid var(--brand); outline-offset: 2px; }
+  :where(a):focus:not(:focus-visible) { outline: none; }
+
+  /* visually-hidden until focused — the modern replacement for left: -9999px,
+     and it needs no JavaScript to reveal itself */
+  .skip {
+    position: absolute;
+    inline-size: 1px; block-size: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .skip:focus {
+    position: fixed;
+    inset-block-start: 0.5rem; inset-inline-start: 0.5rem;
+    inline-size: auto; block-size: auto;
+    margin: 0; padding: 0.5rem 0.75rem;
+    clip-path: none;
+    background: var(--brand); color: var(--brand-ink);
+    border-radius: var(--radius);
+    z-index: 100;
+  }
+}
+
+@layer base {
+  body {
+    font-family: system-ui, Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text);
+    background: var(--surface);
+  }
+  h2, h3, h4 { text-wrap: balance; }      /* no lonely last-line word */
+  p { text-wrap: pretty; }
+}
+
+@layer layout {
+  .wrap { max-inline-size: var(--wrap); margin-inline: auto; }
+
+  /* two-column main: grid + gap, no floats and no clearfix.
+     One container query does what four viewport breakpoints used to. */
+  .main {
+    display: grid;
+    gap: var(--gutter);
+    padding: var(--gutter);
+    container-type: inline-size;
+  }
+  @container (min-width: 45rem) {
+    .main { grid-template-columns: 1fr 18rem; }
+  }
+}
+
+@layer components {
+
+  /* masthead */
+  .masthead {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem var(--gutter);
+    background: var(--brand);
+    color: var(--brand-ink);
+
+    & .seal {
+      flex: none;
+      inline-size: 3.25rem;
+      aspect-ratio: 1;                    /* was width+height+line-height */
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--brand);
+      font-weight: 700;
+    }
+    & h1 { font-size: clamp(1.25rem, 1rem + 2.2vw, 1.9rem); line-height: 1.1; }
+    & .tag { display: block; font-size: 0.7rem; font-weight: 400; opacity: 0.85; }
+  }
+
+  /* primary nav — sticky, so it stays put with zero scroll JS */
+  .nav {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 10;
+    background: var(--brand-dark);
+    border-block-start: 3px solid var(--accent);
+
+    & ul { display: flex; flex-wrap: wrap; }
+    & a {
+      display: block;
+      padding: 0.65rem 1rem;
+      color: var(--brand-ink);
+      text-decoration: none;
+      font-weight: 700;
+      border-inline-end: 1px solid color-mix(in oklab, var(--brand), white 15%);
+      &:hover { background: color-mix(in oklab, var(--brand-dark), white 12%); }
+    }
+  }
+
+  /* hero */
+  .hero {
+    padding: 2rem var(--gutter);
+    text-align: center;
+    background: var(--surface-2);
+    border-block-end: 1px solid var(--border);
+
+    /* one fluid rule instead of a min-width ladder */
+    & h2 { font-size: clamp(1.4rem, 1rem + 3vw, 2.5rem); color: var(--brand); }
+    & p { margin-block-start: 0.5rem; color: var(--text-muted); }
+    & .searchbox {
+      margin-block-start: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    & input[type="search"] {
+      flex: 1 1 20rem;
+      max-inline-size: 22rem;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+    }
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    background: var(--brand);
+    color: var(--brand-ink);
+    border: 0;
+    border-radius: var(--radius);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    &:hover { background: var(--brand-dark); }
+  }
+
+  .jumpnav {
+    padding: 0.5rem var(--gutter);
+    border-block-end: 1px solid var(--border);
+    font-size: 0.85rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .sectionhead {
+    color: var(--brand);
+    font-size: 1.35rem;
+    border-block-end: 2px solid var(--accent);
+    padding-block-end: 0.35rem;
+    margin-block: 1.5rem 0.85rem;
+    scroll-margin-block-start: 3.75rem;  /* fixes the anchor-under-sticky-bar bug */
+  }
+
+  /* services: intrinsic responsive grid — no breakpoints, no JS.
+     auto-fill + minmax reflows 3→2→1 on its own. */
+  .services {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    gap: var(--gutter);
+  }
+  .card {
+    container-type: inline-size;          /* each card watches ITS OWN width */
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-3);
+    padding: 0.85rem;
+
+    &.featured { border-color: var(--accent); background: var(--brand-tint); }
+    & .card-title { color: var(--brand); font-weight: 700; margin-block-end: 0.35rem; }
+    & p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* the card adapts to its container, not the viewport — so a card in the
+       narrow sidebar can differ from the same card in the wide column */
+    @container (max-width: 12rem) {
+      & p { display: none; }
+      & .card-title { font-size: 0.9rem; }
+    }
+  }
+
+  /* announcements: native disclosure — <details> replaces the jQuery slide */
+  .announce {
+    border-block-end: 1px dotted var(--border);
+    padding-block: 0.75rem;
+    & summary {
+      cursor: pointer;
+      color: var(--brand);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    & .date { color: var(--text-muted); font-size: 0.7rem; margin-block: 0.15rem 0.5rem; }
+  }
+
+  /* map: real aspect-ratio, no padding-bottom trick */
+  .mapbox {
+    aspect-ratio: 16 / 9;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-block-start: 0.75rem;
+    display: grid;
+    place-items: center;
+    background: light-dark(#dfe7d8, #223027);
+    color: var(--text-muted);
+  }
+
+  .facts {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem;
+    margin-block-end: var(--gutter);
+    & h3 { color: var(--brand); font-size: 0.95rem; margin-block-end: 0.5rem; }
+    & li {
+      padding-block: 0.25rem;
+      padding-inline-start: 1.1rem;
+      border-block-end: 1px solid var(--border);
+      position: relative;
+      &::before {
+        content: "";
+        position: absolute;
+        inline-size: 0.4rem; aspect-ratio: 1;
+        inset-block-start: 0.65rem; inset-inline-start: 0;
+        background: var(--brand);
+        border-radius: 50%;
+      }
+    }
+  }
+
+  /* directory table */
+  .directory {
+    inline-size: 100%;
+    border-collapse: collapse;
+    margin-block-start: 0.5rem;
+    & th {
+      background: var(--brand); color: var(--brand-ink);
+      text-align: start; padding: 0.5rem; font-size: 0.8rem;
+    }
+    & td { border-block-end: 1px solid var(--border); padding: 0.5rem; font-size: 0.8rem; }
+    & tbody tr:nth-child(even) td { background: var(--surface-3); }  /* zebra, no classes */
+  }
+
+  /* feedback form */
+  .feedback {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-block-start: 0.75rem;
+    display: grid;
+    gap: 0.85rem;
+    max-inline-size: 34rem;
+
+    & .field { display: grid; gap: 0.25rem; }
+    & label { font-weight: 700; color: var(--brand); }
+    & input, & textarea {
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+    }
+    & textarea { field-sizing: content; min-height: 3lh; }  /* auto-grow, no JS */
+
+    /* validation is pure CSS: :has() looks upward, :user-invalid only fires
+       after the user has interacted — no submit handler, no .closest() */
+    & .field:has(:user-invalid) label { color: var(--danger); }
+    & .field:has(:user-invalid) :is(input, textarea) { border-color: var(--danger); }
+    & .err { color: var(--danger); font-size: 0.75rem; display: none; }
+    & .field:has(:user-invalid) .err { display: block; }
+
+    & .check {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-weight: 400; color: var(--text);
+      & input { accent-color: var(--brand); inline-size: 1rem; aspect-ratio: 1; }  /* native, themed */
+    }
+  }
+
+  /* footer */
+  .footer {
+    margin-block-start: 2rem;
+    padding: var(--gutter);
+    background: var(--brand-dark);
+    color: color-mix(in oklab, var(--brand-ink), var(--brand) 25%);
+    font-size: 0.8rem;
+
+    & a { color: var(--brand-ink); }
+    & h4 { color: var(--brand-ink); margin-block-end: 0.5rem; }
+    & .cols {
+      display: grid;
+      gap: var(--gutter);
+      grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    }
+    & .siteindex {
+      max-block-size: 7.5rem;
+      overflow-y: auto;
+      background: var(--brand);
+      border-radius: var(--radius);
+      padding: 0.5rem;
+      /* standard scrollbar styling — Firefox no longer left out */
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) var(--brand-dark);
+    }
+    & .legal {
+      border-block-start: 1px solid color-mix(in oklab, var(--brand), white 15%);
+      margin-block-start: 1rem;
+      padding-block-start: 0.75rem;
+      opacity: 0.85;
+    }
+  }
+}
+</style>
+</head>
+<body>
+
+<a href="#content" class="skip">Skip to main content</a>
+
+<header class="masthead">
+  <span class="seal">OZ</span>
+  <h1>City of Emerald City
+    <span class="tag">Official municipal website &middot; Serving the Land of Oz since 1900</span>
+  </h1>
+</header>
+
+<nav class="nav" aria-label="Primary">
+  <ul class="wrap">
+    <li><a href="#">Home</a></li>
+    <li><a href="#">Residents</a></li>
+    <li><a href="#">Business</a></li>
+    <li><a href="#">Government</a></li>
+    <li><a href="#">Services</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <h2>Everything you need to work with the City of Emerald City, all in one place</h2>
+  <p>Pay a bill, apply for a permit, or find your representative at the Wizard's Office.</p>
+  <div class="searchbox">
+    <input type="search" placeholder="Search city services..." aria-label="Search city services">
+    <button class="btn">Search</button>
+  </div>
+</section>
+
+<div class="jumpnav wrap">
+  <span>Jump to:</span>
+  <a href="#services">Popular Services</a>
+  <a href="#news">Announcements</a>
+  <a href="#directory">Staff Directory</a>
+  <a href="#contact">Send Feedback</a>
+</div>
+
+<main class="main wrap" id="content">
+
+  <div>
+    <h3 class="sectionhead" id="services">Popular Services</h3>
+    <div class="services">
+      <article class="card featured">
+        <div class="card-title">Pay Utility Bill</div>
+        <p>Pay your water, sewer, and refuse bill online with a credit card or bank account.</p>
+      </article>
+      <article class="card">
+        <div class="card-title">Emerald Facade Permits</div>
+        <p>Apply for residential and commercial building permits and check application status.</p>
+      </article>
+      <article class="card">
+        <div class="card-title">Trash &amp; Recycling</div>
+        <p>Look up your collection day and download the holiday pickup schedule.</p>
+      </article>
+      <article class="card">
+        <div class="card-title">Parks &amp; Recreation</div>
+        <p>Reserve a shelter, register for a program, or view park hours and maps.</p>
+      </article>
+      <article class="card">
+        <div class="card-title">Report a Loose Brick</div>
+        <p>Submit a service request for the Yellow Brick Road in your district.</p>
+      </article>
+      <article class="card">
+        <div class="card-title">Council Meetings</div>
+        <p>View agendas, minutes, and the schedule of upcoming public meetings.</p>
+      </article>
+    </div>
+
+    <h3 class="sectionhead" id="news">Announcements</h3>
+
+    <details class="announce">
+      <summary>Yellow Brick Road resurfacing on the West Approach</summary>
+      <p class="date">Posted September 12, 2011</p>
+      <p>The West Approach between Poppy Field and the City Gate will have single-lane
+      access on weekdays from 7 a.m. to 4 p.m. through mid-October. Travelers are asked
+      to use the North Path as an alternate route. Access to residences will be maintained.</p>
+    </details>
+
+    <details class="announce">
+      <summary>Annual Emerald Festival returns October 3</summary>
+      <p class="date">Posted September 8, 2011</p>
+      <p>The Emerald Festival returns to Central Plaza with food vendors, live music,
+      and a lantern parade down the Yellow Brick Road. Road closures will be in effect
+      from noon to 10 p.m. Free shuttle service will run from the outer districts.</p>
+    </details>
+
+    <h3 class="sectionhead">Find Us</h3>
+    <div class="mapbox">[ interactive map embed ]</div>
+  </div>
+
+  <aside>
+    <div class="facts">
+      <h3>City at a Glance</h3>
+      <ul>
+        <li>Population: 42,318</li>
+        <li>Incorporated: 1900</li>
+        <li>City Hall: 1 Emerald Plaza</li>
+        <li>Office hours: Mon&ndash;Fri, 8&ndash;5</li>
+        <li>Non-emergency: (555) 012-3400</li>
+      </ul>
+    </div>
+    <div class="facts">
+      <h3>Quick Links</h3>
+      <ul>
+        <li><a href="#">Employment</a></li>
+        <li><a href="#">Bids &amp; RFPs</a></li>
+        <li><a href="#">Public Records</a></li>
+        <li><a href="#">City Code</a></li>
+      </ul>
+    </div>
+  </aside>
+
+</main>
+
+<div class="wrap" style="padding-inline: var(--gutter);">
+  <h3 class="sectionhead" id="directory">Department Directory</h3>
+  <table class="directory">
+    <thead>
+      <tr><th>Department</th><th>Contact</th><th>Phone</th><th>Email</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>City Clerk</td><td>Dana Reyes</td><td>(555) 012-3410</td><td>clerk@emeraldcity.gov</td></tr>
+      <tr><td>Public Works (Roads &amp; Bricks)</td><td>Marcus Lee</td><td>(555) 012-3420</td><td>pw@emeraldcity.gov</td></tr>
+      <tr><td>Parks &amp; Rec</td><td>Priya Anand</td><td>(555) 012-3430</td><td>parks@emeraldcity.gov</td></tr>
+      <tr><td>Building &amp; Emerald Standards</td><td>Tom Okafor</td><td>(555) 012-3440</td><td>building@emeraldcity.gov</td></tr>
+      <tr><td>Treasury of Oz</td><td>Sara Kimura</td><td>(555) 012-3450</td><td>finance@emeraldcity.gov</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="wrap" style="padding-inline: var(--gutter);">
+  <h3 class="sectionhead" id="contact">Send Feedback</h3>
+  <form class="feedback">
+    <div class="field">
+      <label for="fname">Your name</label>
+      <input type="text" id="fname" required>
+      <span class="err">Please enter your name.</span>
+    </div>
+    <div class="field">
+      <label for="femail">Email</label>
+      <input type="email" id="femail" required>
+      <span class="err">Please enter a valid email address.</span>
+    </div>
+    <div class="field">
+      <label for="fmsg">Message</label>
+      <textarea id="fmsg" required></textarea>
+      <span class="err">Please enter a message.</span>
+    </div>
+    <label class="check">
+      <input type="checkbox" id="fcopy">
+      Send me a copy of this message
+    </label>
+    <div><button class="btn" type="submit">Submit Feedback</button></div>
+  </form>
+</div>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h4>Contact</h4>
+        1 Emerald Plaza<br>Emerald City, OZ 00000<br>(555) 012-3400
+      </div>
+      <div>
+        <h4>Hours</h4>
+        Mon&ndash;Fri: 8 a.m.&ndash;5 p.m.<br>Sat&ndash;Sun: Closed
+      </div>
+      <div>
+        <h4>Follow</h4>
+        <a href="#">Newsletter</a><br><a href="#">Alerts</a><br><a href="#">Meetings feed</a>
+      </div>
+      <div>
+        <h4>Site Index</h4>
+        <div class="siteindex">
+          <ul>
+            <li><a href="#">Animal Control</a></li>
+            <li><a href="#">Assessor</a></li>
+            <li><a href="#">Building</a></li>
+            <li><a href="#">Elections</a></li>
+            <li><a href="#">Festival Office</a></li>
+            <li><a href="#">Finance</a></li>
+            <li><a href="#">Gatekeeper</a></li>
+            <li><a href="#">Library</a></li>
+            <li><a href="#">Parks</a></li>
+            <li><a href="#">Permits</a></li>
+            <li><a href="#">Transit</a></li>
+            <li><a href="#">Utilities</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <p class="legal">
+      &copy; 2026 City of Emerald City. All rights reserved. &middot;
+      <a href="#">Accessibility</a> &middot; <a href="#">Privacy Policy</a> &middot; <a href="#">Site Map</a>
+    </p>
+  </div>
+</footer>
+
+<!-- No <script>. No jQuery. Everything above is native CSS + HTML. -->
+</body>
+</html>

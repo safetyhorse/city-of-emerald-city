@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keep in the Quiver — Still-Reliable CSS &amp; Modern Additions</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --brand: #046a38;
+    --accent: #f0c419;
+    --ink: light-dark(#1e2621, #e6efe9);
+    --muted: light-dark(#5f6f66, #9db4a8);
+    --surface: light-dark(#ffffff, #0f1512);
+    --surface-2: light-dark(#f4faf6, #17211c);
+    --border: light-dark(#d6e0da, #2c3a32);
+    --widely: light-dark(#0a6b3d, #74d6a0);
+    --newly: light-dark(#8a5a00, #f0c419);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--surface);
+    margin: 0;
+    line-height: 1.45;
+    font-size: 14px;
+  }
+  .sheet { max-width: 60rem; margin-inline: auto; padding: 1.5rem; }
+  header {
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 0.6rem;
+    margin-bottom: 1rem;
+  }
+  h1 { font-size: 1.5rem; margin: 0 0 0.15rem; color: var(--brand); }
+  .sub { color: var(--muted); font-size: 0.85rem; }
+  h2 {
+    font-size: 1rem;
+    color: var(--brand);
+    margin: 1.5rem 0 0.15rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.2rem;
+  }
+  .intro { color: var(--muted); font-size: 0.82rem; margin: 0.35rem 0 0.5rem; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); padding: 0.4rem 0.5rem; }
+  td { padding: 0.45rem 0.5rem; border-top: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--surface-2); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.82em; background: var(--surface-2); padding: 0.05em 0.3em; border-radius: 3px; }
+  .lead { font-weight: 700; }
+  a { color: var(--brand); }
+  .badge { display: inline-block; font-size: 0.68rem; font-weight: 700; white-space: nowrap; padding: 0.1rem 0.4rem; border-radius: 10px; border: 1px solid currentColor; }
+  .b-widely { color: var(--widely); }
+  .b-newly { color: var(--newly); }
+  .legend { display: flex; gap: 1.2rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; }
+  footer { margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 0.6rem; font-size: 0.78rem; color: var(--muted); }
+  @media print {
+    body { font-size: 11px; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header>
+    <h1>Keep in the Quiver</h1>
+    <div class="sub">The companion to the Delete List: what's still reliable, and what to add &middot; July 2026</div>
+    <div class="legend">
+      <span><span class="badge b-widely">WIDELY</span> safe to ship</span>
+      <span><span class="badge b-newly">NEWLY</span> current browsers; enhance with <code>@supports</code></span>
+    </div>
+  </header>
+
+  <h2>Still solid &mdash; trust what you already know</h2>
+  <p class="intro">Modern CSS is mostly additive. These fundamentals did not change; if you
+  learned them once, they still hold.</p>
+  <table>
+    <thead><tr><th>What you know</th><th>Why it's still true</th></tr></thead>
+    <tbody>
+      <tr><td class="lead">The box model</td><td>content / padding / border / margin is unchanged. <code>box-sizing: border-box</code> is just the sane default now.</td></tr>
+      <tr><td class="lead">The cascade &amp; specificity</td><td>Still the core engine. Cascade layers <em>organize</em> it; they don't replace it. Source order still breaks ties.</td></tr>
+      <tr><td class="lead">Class selectors &amp; BEM</td><td>Classes are still your main tool. Naming conventions are still valid (just no longer the <em>only</em> way to scope).</td></tr>
+      <tr><td class="lead">Flexbox &amp; Grid mental model</td><td>The fundamentals are stable. Subgrid and container queries extend them; they don't restart them.</td></tr>
+      <tr><td class="lead"><code>rem</code> / <code>em</code></td><td>Still the right units for type and spacing. New units (<code>ch</code>, <code>dvh</code>, <code>lh</code>) add options, they don't retire these.</td></tr>
+      <tr><td class="lead"><code>position</code>: relative/absolute/fixed/sticky</td><td>Same behavior as ever. <code>sticky</code> is the newer member and is fully reliable.</td></tr>
+      <tr><td class="lead">z-index &amp; stacking contexts</td><td>Same rules. Just remember many properties silently create a stacking context (see the quiver below).</td></tr>
+      <tr><td class="lead">Pseudo-classes: <code>:hover</code>, <code>:focus</code>, <code>:checked</code>, <code>:nth-child</code></td><td>Bread and butter, unchanged. The new relational ones (<code>:has</code>) build on top.</td></tr>
+      <tr><td class="lead">Transitions &amp; keyframes</td><td>Same model. New entry/exit animation features add to it; the basics are untouched.</td></tr>
+      <tr><td class="lead">Semantic HTML</td><td>More valuable than ever &mdash; <code>:has()</code>, form pseudo-classes, and accessibility all reward good markup.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Not dead &mdash; just for the right job</h2>
+  <p class="intro">The Delete List retires these from <em>overuse</em>, not from existence. Each still has a
+  legitimate, narrower role. Don't overcorrect.</p>
+  <table>
+    <thead><tr><th>Tool</th><th>Still the right choice for</th><th>Stop using it for</th></tr></thead>
+    <tbody>
+      <tr><td class="lead"><code>float</code></td><td>Wrapping text around a figure or pull-quote &mdash; its original purpose.</td><td>Page or component layout (use Grid/Flexbox).</td></tr>
+      <tr><td class="lead">Media queries</td><td>Page-level concerns: overall shell, <code>print</code>, <code>prefers-reduced-motion</code>, <code>prefers-color-scheme</code>, <code>prefers-contrast</code>, orientation.</td><td>Component-level sizing (use container queries). They coexist &mdash; different jobs.</td></tr>
+      <tr><td class="lead"><code>!important</code></td><td>Utilities that must always win (<code>.hidden</code>), overriding third-party or inline styles you can't edit, some a11y overrides.</td><td>Winning ordinary cascade fights (that's a layers/specificity smell).</td></tr>
+      <tr><td class="lead">Tables</td><td>Tabular data &mdash; always correct, accessible, and expected.</td><td>Page layout (never).</td></tr>
+      <tr><td class="lead">IDs</td><td>Fragment links (<code>#section</code>) and JS hooks.</td><td>Styling hooks, if their specificity weight causes fights (or wrap in <code>:where()</code>).</td></tr>
+      <tr><td class="lead">Sass / preprocessors</td><td>Mixins, functions, loops, the <code>@use</code> module system, build-time math.</td><td>Nesting and variables alone &mdash; CSS does those natively now.</td></tr>
+      <tr><td class="lead">jQuery</td><td>Existing code that works &mdash; no need to rip it out on a deadline.</td><td>Reaching for it in <em>new</em> code (native DOM APIs + CSS cover most of it).</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Keep in the quiver &mdash; modern additions worth knowing</h2>
+  <p class="intro">These don't replace an old hack &mdash; they're tools most people with 2011-era skills
+  simply never met. Worth having in your back pocket.</p>
+  <table>
+    <thead><tr><th>Tool</th><th>What it's for</th><th>Baseline</th><th>Reference</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="lead"><code>isolation: isolate</code></td>
+        <td>Create a stacking context with no z-index &mdash; the clean fix for z-index leaks between components.</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/isolation">isolation</a></td>
+      </tr>
+      <tr>
+        <td class="lead"><code>@supports</code></td>
+        <td>Feature-detect in CSS and enhance progressively &mdash; the key to adopting NEWLY features safely.</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@supports">@supports</a></td>
+      </tr>
+      <tr>
+        <td class="lead"><code>:is()</code> / <code>:where()</code></td>
+        <td>Group selectors. <code>:where()</code> adds zero specificity &mdash; perfect for resets and defaults you want easy to override.</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:where">:where()</a></td>
+      </tr>
+      <tr>
+        <td class="lead"><code>min()</code> / <code>max()</code> / <code>clamp()</code></td>
+        <td>Not just for font size &mdash; use them for padding, widths, gaps, anywhere a value should flex.</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/clamp">clamp()</a></td>
+      </tr>
+      <tr>
+        <td class="lead"><code>inset</code></td>
+        <td>Shorthand for top/right/bottom/left; plus logical <code>inset-block</code> / <code>inset-inline</code>.</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/inset">inset</a></td>
+      </tr>
+      <tr>
+        <td class="lead"><code>object-fit</code> / <code>object-position</code></td>
+        <td><code>background-size: cover</code> behavior for real <code>&lt;img&gt;</code> elements &mdash; crop without a wrapper.</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit">object-fit</a></td>
+      </tr>
+      <tr>
+        <td class="lead"><code>min-content</code> / <code>max-content</code> / <code>fit-content</code></td>
+        <td>Intrinsic sizing keywords &mdash; size a box to its content instead of guessing pixels.</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/width#values">Intrinsic sizing</a></td>
+      </tr>
+      <tr>
+        <td class="lead"><code>currentColor</code></td>
+        <td>Reuse the element's text color for borders, icons, and SVG fills &mdash; one value, stays in sync.</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword">currentColor</a></td>
+      </tr>
+      <tr>
+        <td class="lead"><code>:not(a, b, c)</code></td>
+        <td><code>:not()</code> now takes a list &mdash; "everything except these" in one selector.</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:not">:not()</a></td>
+      </tr>
+      <tr>
+        <td class="lead">scroll-snap</td>
+        <td>Carousels and snap-to galleries with no JavaScript &mdash; <code>scroll-snap-type</code> + <code>scroll-snap-align</code>.</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll_snap">scroll-snap</a></td>
+      </tr>
+      <tr>
+        <td class="lead"><code>@property</code></td>
+        <td>Typed custom properties &mdash; unlocks animating variables and gradients the browser otherwise can't tween.</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@property">@property</a></td>
+      </tr>
+      <tr>
+        <td class="lead"><code>@scope</code></td>
+        <td>Scope styles to a subtree without naming conventions &mdash; a lighter alternative to BEM for isolated components.</td>
+        <td><span class="badge b-newly">NEWLY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@scope">@scope</a></td>
+      </tr>
+      <tr>
+        <td class="lead"><code>content-visibility</code></td>
+        <td>Skip rendering work for offscreen content &mdash; a cheap performance win on long pages.</td>
+        <td><span class="badge b-newly">NEWLY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/content-visibility">content-visibility</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <footer>
+    <strong>The stacking-context reminder:</strong> a z-index that "won't work" is almost always a
+    stacking-context problem, not a too-small-number problem. <code>transform</code>, <code>filter</code>,
+    <code>opacity</code> &lt; 1, <code>will-change</code>, <code>backdrop-filter</code>, and
+    <code>container-type</code> all silently create one. Reach for <code>isolation: isolate</code> to
+    make a component's stacking self-contained on purpose.
+    <br>
+    Companion to "The Delete List." Prepared for the NAGW modern-CSS session &middot;
+    "Clearfix: catching up on the CSS you've missed."
+  </footer>
+
+</div>
+</body>
+</html>

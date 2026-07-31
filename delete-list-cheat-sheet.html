@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Delete List — Modern CSS Cheat Sheet</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --brand: #046a38;
+    --accent: #f0c419;
+    --ink: light-dark(#1e2621, #e6efe9);
+    --muted: light-dark(#5f6f66, #9db4a8);
+    --surface: light-dark(#ffffff, #0f1512);
+    --surface-2: light-dark(#f4faf6, #17211c);
+    --border: light-dark(#d6e0da, #2c3a32);
+    --widely: light-dark(#0a6b3d, #74d6a0);
+    --newly: light-dark(#8a5a00, #f0c419);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--surface);
+    margin: 0;
+    line-height: 1.45;
+    font-size: 14px;
+  }
+  .sheet { max-width: 60rem; margin-inline: auto; padding: 1.5rem; }
+  header {
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 0.6rem;
+    margin-bottom: 1rem;
+  }
+  h1 { font-size: 1.5rem; margin: 0 0 0.15rem; color: var(--brand); }
+  .sub { color: var(--muted); font-size: 0.85rem; }
+  h2 {
+    font-size: 1rem;
+    color: var(--brand);
+    margin: 1.4rem 0 0.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.2rem;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); padding: 0.4rem 0.5rem; }
+  td { padding: 0.45rem 0.5rem; border-top: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: var(--surface-2); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.82em; background: var(--surface-2); padding: 0.05em 0.3em; border-radius: 3px; }
+  .old { color: var(--muted); }
+  .badge { display: inline-block; font-size: 0.68rem; font-weight: 700; white-space: nowrap; padding: 0.1rem 0.4rem; border-radius: 10px; border: 1px solid currentColor; }
+  .b-widely { color: var(--widely); }
+  .b-newly { color: var(--newly); }
+  a { color: var(--brand); }
+  .legend { display: flex; gap: 1.2rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; }
+  .note { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; }
+  footer { margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 0.6rem; font-size: 0.78rem; color: var(--muted); }
+  @media print {
+    body { font-size: 11px; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header>
+    <h1>The Delete List</h1>
+    <div class="sub">Old CSS hacks and the native features that retire them &middot; status current as of July 2026</div>
+    <div class="legend">
+      <span><span class="badge b-widely">WIDELY</span> safe to ship without a second thought</span>
+      <span><span class="badge b-newly">NEWLY</span> works in current browsers; enhance with <code>@supports</code></span>
+    </div>
+  </header>
+
+  <h2>Layout</h2>
+  <table>
+    <thead><tr><th>Delete this</th><th>Use this</th><th>Baseline</th><th>Reference</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="old"><code>.clearfix</code> + <code>float</code> columns</td>
+        <td>Flexbox &amp; Grid with <code>gap</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout">Grid</a></td>
+      </tr>
+      <tr>
+        <td class="old">Negative-margin gutters</td>
+        <td><code>gap</code> (flexbox too, not just grid)</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/gap">gap</a></td>
+      </tr>
+      <tr>
+        <td class="old">JS width-watching for components</td>
+        <td>Container queries <code>@container</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries">Container queries</a></td>
+      </tr>
+      <tr>
+        <td class="old">Breakpoint ladders to re-flow a grid</td>
+        <td><code>repeat(auto-fill, minmax())</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/minmax">minmax()</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Sizing &amp; typography</h2>
+  <table>
+    <thead><tr><th>Delete this</th><th>Use this</th><th>Baseline</th><th>Reference</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="old"><code>@media</code> ladder to resize a heading</td>
+        <td><code>clamp()</code> (one fluid rule)</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/clamp">clamp()</a></td>
+      </tr>
+      <tr>
+        <td class="old">JS line-balancer / manual <code>&lt;br&gt;</code></td>
+        <td><code>text-wrap: balance</code> / <code>pretty</code></td>
+        <td><span class="badge b-newly">NEWLY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/text-wrap">text-wrap</a></td>
+      </tr>
+      <tr>
+        <td class="old"><code>padding-bottom: 56.25%</code> ratio hack</td>
+        <td><code>aspect-ratio</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio">aspect-ratio</a></td>
+      </tr>
+      <tr>
+        <td class="old">Anchor jumps under a sticky header</td>
+        <td><code>scroll-margin-top</code> / <code>scroll-padding-top</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin-top">scroll-margin</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Selectors &amp; architecture</h2>
+  <table>
+    <thead><tr><th>Delete this</th><th>Use this</th><th>Baseline</th><th>Reference</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="old">JS to check "does this parent contain X?"</td>
+        <td><code>:has()</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:has">:has()</a></td>
+      </tr>
+      <tr>
+        <td class="old">Specificity escalation wars</td>
+        <td><code>:where()</code> (zero specificity), <code>:is()</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:where">:where()</a></td>
+      </tr>
+      <tr>
+        <td class="old"><code>!important</code> to win the cascade</td>
+        <td>Cascade layers <code>@layer</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@layer">@layer</a></td>
+      </tr>
+      <tr>
+        <td class="old">Sass just for nesting</td>
+        <td>Native CSS nesting</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting">Nesting</a></td>
+      </tr>
+      <tr>
+        <td class="old">Sass variables</td>
+        <td>Custom properties <code>--x</code> (+ typed <code>@property</code>)</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/--*">Custom properties</a></td>
+      </tr>
+      <tr>
+        <td class="old">Sass <code>lighten()</code> / <code>darken()</code></td>
+        <td><code>color-mix()</code>, <code>oklch()</code>, relative color</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color-mix">color-mix()</a></td>
+      </tr>
+      <tr>
+        <td class="old">Directional <code>margin-left</code>, <code>text-align:left</code></td>
+        <td>Logical properties (<code>margin-inline</code>, <code>start</code>)</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_logical_properties_and_values">Logical properties</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Forms, UI &amp; theming</h2>
+  <table>
+    <thead><tr><th>Delete this</th><th>Use this</th><th>Baseline</th><th>Reference</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="old"><code>outline: none</code> on <code>:focus</code></td>
+        <td><code>:focus-visible</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible">:focus-visible</a></td>
+      </tr>
+      <tr>
+        <td class="old">Image-swap custom checkboxes</td>
+        <td><code>accent-color</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/accent-color">accent-color</a></td>
+      </tr>
+      <tr>
+        <td class="old">JS auto-grow <code>&lt;textarea&gt;</code></td>
+        <td><code>field-sizing: content</code></td>
+        <td><span class="badge b-newly">NEWLY</span> <span class="note" style="display:inline">(Jun 2026)</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/field-sizing">field-sizing</a></td>
+      </tr>
+      <tr>
+        <td class="old">JS validation wiring</td>
+        <td><code>:user-invalid</code> / <code>:user-valid</code> + <code>:has()</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:user-invalid">:user-invalid</a></td>
+      </tr>
+      <tr>
+        <td class="old"><code>-webkit-scrollbar</code> (Firefox ignored it)</td>
+        <td><code>scrollbar-color</code> / <code>scrollbar-width</code></td>
+        <td><span class="badge b-newly">NEWLY</span> <span class="note" style="display:inline">(Dec 2025)</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-color">scrollbar-color</a></td>
+      </tr>
+      <tr>
+        <td class="old">jQuery slide/fade toggles</td>
+        <td><code>&lt;details&gt;</code>, <code>@starting-style</code>, transition to <code>display:none</code></td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/details">details</a></td>
+      </tr>
+      <tr>
+        <td class="old">Two hand-maintained color themes</td>
+        <td><code>color-scheme</code> + <code>light-dark()</code></td>
+        <td><span class="badge b-newly">NEWLY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark">light-dark()</a></td>
+      </tr>
+      <tr>
+        <td class="old">Vendor-prefixed <code>border-radius</code>, <code>box-shadow</code>, <code>box-sizing</code></td>
+        <td>Just the unprefixed property</td>
+        <td><span class="badge b-widely">WIDELY</span></td>
+        <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius">border-radius</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <footer>
+    <strong>How to check status yourself:</strong>
+    every feature above links to MDN, which shows its live Baseline badge.
+    Monthly roundups at <a href="https://web.dev/blog/">web.dev</a> (search "Baseline digest").
+    Enforce a floor in your codebase with the ESLint rule
+    <code>css/require-baseline: ["warn", { available: "widely" }]</code>.
+    <br>
+    <strong>NEWLY</strong> features are production-ready for up-to-date browsers today;
+    wrap them in <code>@supports</code> (or accept graceful degradation) if you must support older ones.
+    Prepared for the NAGW modern-CSS session &middot; "Clearfix: catching up on the CSS you've missed."
+  </footer>
+
+</div>
+</body>
+</html>
