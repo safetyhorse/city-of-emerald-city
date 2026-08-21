@@ -182,7 +182,7 @@ always rescue Case B. Layers only help if you can get your styles into a layer t
 outranks the other rule — but unlayered styles beat *all* layered normal styles, and a
 vendor's or legacy stylesheet is almost always unlayered. So when you can only append
 your own CSS against an unlayered, high-specificity rule you can't touch, `!important`
-(or out-specificing it) really is the answer. Keeps the talk from sounding dogmatic.
+(or out-specificing it) really is the answer.
  
 **The test for your own code:** is there an actual competing rule this is beating? If
 you can delete `!important` and nothing changes, it's Case A — delete it. If something
