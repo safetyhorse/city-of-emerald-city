@@ -148,6 +148,48 @@ last reason to reach for a JS animation library."
 about the animation — don't rabbit-hole on it live.
 
 ---
+ 
+## The two faces of `!important` (a two-presenter moment)
+ 
+The `before` file has two `!important` examples on purpose, and they teach opposite
+lessons. This is the natural spot for the co-presenter's CMS/legacy perspective.
+ 
+**Case A — reflexive insurance (the smell).** Point at the featured card:
+```css
+.services .card.featured .inner { border-color: #f0c419 !important; background: #fffdf3 !important; }
+```
+Remove both `!important`s live — *nothing changes.* The `.featured` selector already
+outranks the base `.card .inner` on specificity, so the `!important` was never winning
+anything. **Say:** "This is how `!important` actually shows up in the wild — not solving
+a conflict, just nervous insurance someone added 'to be safe.' Nobody checked, nobody
+dares remove it, and it accumulates. Five years of this is how you get a stylesheet
+where every override needs its own `!important` to beat the last one."
+ 
+**Case B — the legitimate case (a strong selector you can't, or daren't, change).**
+Point at the Search button:
+```css
+#wrapper #hero .searchbox input[type="submit"] { background: #999999; }   /* can't edit / risky to touch */
+#hero .searchbox input[type="submit"] { background: #046a38 !important; } /* our only lever */
+```
+Remove *this* `!important` and the button visibly snaps from emerald to gray, because the
+first selector (two IDs) outranks ours (one ID). **Say:** "Here `!important` is the
+*correct* tool. That stronger rule is one you can't change — maybe it's injected by a
+vendor CMS, maybe it's old code where nobody knows what breaks if you delete it. Either
+way, your stylesheet is weaker and `!important` is the honest way to win."
+ 
+**The nuance:** "just use cascade layers" does *not*
+always rescue Case B. Layers only help if you can get your styles into a layer that
+outranks the other rule — but unlayered styles beat *all* layered normal styles, and a
+vendor's or legacy stylesheet is almost always unlayered. So when you can only append
+your own CSS against an unlayered, high-specificity rule you can't touch, `!important`
+(or out-specificing it) really is the answer. Keeps the talk from sounding dogmatic.
+ 
+**The test for your own code:** is there an actual competing rule this is beating? If
+you can delete `!important` and nothing changes, it's Case A — delete it. If something
+breaks and you can't fix the *other* rule, it's Case B — keep it, and leave a comment
+saying why.
+
+---
 
 ## Architecture layer (weave through, don't silo)
 
