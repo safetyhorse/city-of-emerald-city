@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<!--
+  Emerald City — Layout Patterns leave-behind
+  Two questions this file answers:
+    1. Is my data actually tabular? If yes, use a <table> — and here's how to
+       make a table responsive without breaking it.
+    2. Is it a one-dimensional list? Then arrange it — with flexbox, grid, or
+       columns. Same list, three tools, so you can see how they differ.
+
+  Every demo box below has a drag handle on its right edge (resize: horizontal).
+  Drag it left and right to watch each pattern respond — no window resizing needed.
+  There is no JavaScript in this file.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emerald City — Layout Patterns</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --brand: #046a38;
+    --accent: #f0c419;
+    --ink: light-dark(#1e2621, #e6efe9);
+    --muted: light-dark(#5f6f66, #9db4a8);
+    --surface: light-dark(#ffffff, #0f1512);
+    --surface-2: light-dark(#f4faf6, #17211c);
+    --border: light-dark(#d6e0da, #2c3a32);
+    --radius: 6px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--surface);
+    line-height: 1.5;
+    margin: 0;
+    padding: 1.5rem;
+  }
+  .page { max-inline-size: 62rem; margin-inline: auto; }
+  h1 { color: var(--brand); font-size: 1.6rem; margin-block: 0 0.25rem; }
+  h2 {
+    color: var(--brand);
+    font-size: 1.15rem;
+    margin-block: 2rem 0.25rem;
+    border-block-end: 2px solid var(--accent);
+    padding-block-end: 0.3rem;
+  }
+  h3 { font-size: 0.95rem; margin-block: 1.25rem 0.4rem; }
+  p.lead { color: var(--muted); margin-block: 0.25rem 0; }
+  .note {
+    background: var(--surface-2);
+    border-inline-start: 3px solid var(--accent);
+    padding: 0.6rem 0.8rem;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    margin-block: 0.75rem;
+  }
+  .note strong { color: var(--brand); }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.85em; background: var(--surface-2); padding: 0.05em 0.3em; border-radius: 3px; }
+
+  /* Every demo lives in a resizable box so you can drag to test responsiveness */
+  .demo {
+    resize: horizontal;
+    overflow: auto;
+    min-inline-size: 16rem;
+    max-inline-size: 100%;
+    inline-size: 100%;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-block-start: 0.5rem;
+    background: var(--surface);
+  }
+  .demo::after {
+    content: "↔ drag the right edge to resize";
+    display: block;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-block-start: 0.75rem;
+    text-align: end;
+  }
+
+  /* ---------- shared item styling for the list demos ---------- */
+  .item {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.5rem 0.7rem;
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: var(--ink);
+    display: block;
+  }
+  .item:hover { border-color: var(--brand); }
+
+  /* =====================================================================
+     PATTERN 1 — flexbox: content-driven. Items size to their content and
+     wrap. Note the ragged right edge — columns do NOT line up, because
+     each item is only as wide as its text. Great when the content decides.
+     ===================================================================== */
+  .flow-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;              /* gap works in flexbox, not just grid */
+  }
+
+  /* =====================================================================
+     PATTERN 2 — grid: layout-driven. auto-fit + minmax packs in as many
+     equal columns as fit, aligned both ways, and reflows on its own with
+     NO media query. This is the set-and-forget responsive grid.
+     ===================================================================== */
+  .flow-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 0.5rem;
+  }
+
+  /* =====================================================================
+     PATTERN 3 — multi-column: for when reading order matters. Items flow
+     DOWN each column then across (like a phone book / A–Z index), which
+     grid and flexbox can't do. Also no media query.
+     ===================================================================== */
+  .flow-columns {
+    columns: 9rem;           /* target column width; browser picks the count */
+    gap: 1.5rem;
+  }
+  .flow-columns .item {
+    margin-block-end: 0.5rem;
+    break-inside: avoid;     /* don't split an item across columns */
+  }
+
+  /* ---------- table demos ---------- */
+  table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  caption { text-align: start; color: var(--muted); font-size: 0.8rem; margin-block-end: 0.4rem; }
+  th, td { padding: 0.5rem; border-block-end: 1px solid var(--border); text-align: start; }
+  thead th { background: var(--brand); color: #fff; }
+
+  /* TABLE, RESPONSIVE WAY A — just let it scroll. Safest: the table keeps
+     all its semantics; nothing about it changes for assistive tech. */
+  .table-scroll { overflow-x: auto; }
+
+  /* TABLE, RESPONSIVE WAY B — reflow each row into a labelled card when the
+     CONTAINER (not the viewport) gets narrow. Uses a container query so it
+     responds to the drag handle. Nicer on phones, but see the a11y note. */
+  .table-reflow { container-type: inline-size; }
+  @container (max-width: 34rem) {
+    .table-reflow table, 
+    .table-reflow tbody,
+    .table-reflow tr,
+    .table-reflow td { display: block; inline-size: 100%; }
+    .table-reflow thead { display: none; }          /* headers move into each cell */
+    .table-reflow tr {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-block-end: 0.6rem;
+      padding: 0.3rem 0.6rem;
+    }
+    .table-reflow td {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      border: 0;
+      border-block-end: 1px dotted var(--border);
+      padding-inline: 0;
+    }
+    .table-reflow td:last-child { border-block-end: 0; }
+    .table-reflow td::before {
+      content: attr(data-label);                     /* the label from the markup */
+      font-weight: 700;
+      color: var(--brand);
+    }
+  }
+
+  /* =====================================================================
+     PAGE SKELETON — grid places the regions, flexbox arranges what's inside
+     one, and position: sticky is a behavior added on top. The grid uses
+     grid-template-areas (readable ASCII) that get REDRAWN at a breakpoint —
+     here a container query, so it responds to the drag handle.
+     ===================================================================== */
+  .skeleton {
+    resize: horizontal;
+    overflow: auto;                 /* this box is the scroll container */
+    block-size: 20rem;
+    inline-size: 100%;
+    min-inline-size: 17rem;
+    max-inline-size: 100%;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    margin-block-start: 0.5rem;
+  }
+  .sk-header {
+    position: sticky;               /* the sticky behavior — no grid/flex needed for it */
+    inset-block-start: 0;
+    z-index: 1;
+    display: flex;                  /* flexbox arranges the header's contents */
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--brand);
+    color: #fff;
+    padding: 0.5rem 0.8rem;
+  }
+  .sk-logo { font-weight: 700; }
+  .sk-nav { display: flex; flex-wrap: wrap; gap: 0.25rem 0.9rem; margin-inline-start: auto; }
+  .sk-nav a { color: #fff; text-decoration: none; font-size: 0.85rem; }
+  .sk-nav a:hover { text-decoration: underline; }
+
+  .sk-canvas { container-type: inline-size; }   /* the regions respond to this box's width */
+  .sk-body {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0.6rem;
+    grid-template-columns: 1fr 8rem;
+    grid-template-areas:
+      "main aside"
+      "footer footer";             /* draw the layout as a little map */
+  }
+  .sk-main   { grid-area: main; }
+  .sk-main p { margin-block: 0 0.6rem; font-size: 0.82rem; }
+  .sk-aside  { grid-area: aside; background: var(--surface-2); border-radius: var(--radius); padding: 0.5rem; font-size: 0.8rem; }
+  .sk-footer { grid-area: footer; background: var(--surface-2); border-radius: var(--radius); padding: 0.4rem 0.6rem; font-size: 0.75rem; color: var(--muted); text-align: center; }
+
+  /* redraw the same regions into one column when the box gets narrow */
+  @container (max-width: 26rem) {
+    .sk-body {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "main"
+        "aside"
+        "footer";
+    }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Layout patterns for lists &amp; tables</h1>
+  <p class="lead">First ask: is this actually tabular data (records with shared fields),
+  or a one-dimensional list of items? The answer picks your tool.</p>
+
+  <!-- ============================ TABLES ============================ -->
+  <h2>Tabular data → use a <code>&lt;table&gt;</code></h2>
+  <p class="lead">A permit fee schedule is genuinely tabular: every row is a record, every
+  column a shared field. Use the real element — it's correct, accessible, and expected by
+  screen readers. Then make it <em>responsive</em> with CSS. Two honest ways:</p>
+
+  <h3>Way A — let it scroll (safest)</h3>
+  <div class="note"><strong>Recommended default.</strong> Wrapping the table in an
+  <code>overflow-x: auto</code> box keeps every bit of table semantics intact. Nothing
+  changes for assistive tech; narrow screens just scroll sideways.</div>
+  <div class="demo">
+    <div class="table-scroll">
+      <table>
+        <caption>Permit fee schedule (scrolls when narrow)</caption>
+        <thead>
+          <tr><th>Permit type</th><th>Fee</th><th>Processing time</th><th>Department</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Building — Residential</td><td>$150</td><td>10 business days</td><td>Building &amp; Emerald Standards</td></tr>
+          <tr><td>Fence</td><td>$45</td><td>5 business days</td><td>Building &amp; Emerald Standards</td></tr>
+          <tr><td>Sign</td><td>$75</td><td>7 business days</td><td>Planning</td></tr>
+          <tr><td>Block Party</td><td>$25</td><td>3 business days</td><td>City Clerk</td></tr>
+          <tr><td>Food Vendor</td><td>$110</td><td>14 business days</td><td>Health</td></tr>
+          <tr><td>Yellow Brick Road Access</td><td>$200</td><td>21 business days</td><td>Public Works</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3>Way B — reflow into cards (nicer on phones, with a caveat)</h3>
+  <div class="note"><strong>Accessibility caveat.</strong> This sets the table parts to
+  <code>display: block</code>, which can weaken the row/column relationships some screen
+  readers rely on. It looks great and is widely used, but test it with a screen reader
+  before shipping — and if in doubt, prefer Way A. Each cell carries a
+  <code>data-label</code> so its header can reappear as a prefix.</div>
+  <div class="demo">
+    <div class="table-reflow">
+      <table>
+        <caption>Permit fee schedule (reflows to cards when narrow)</caption>
+        <thead>
+          <tr><th>Permit type</th><th>Fee</th><th>Processing time</th><th>Department</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="Permit type">Building — Residential</td>
+            <td data-label="Fee">$150</td>
+            <td data-label="Processing time">10 business days</td>
+            <td data-label="Department">Building &amp; Emerald Standards</td>
+          </tr>
+          <tr>
+            <td data-label="Permit type">Fence</td>
+            <td data-label="Fee">$45</td>
+            <td data-label="Processing time">5 business days</td>
+            <td data-label="Department">Building &amp; Emerald Standards</td>
+          </tr>
+          <tr>
+            <td data-label="Permit type">Sign</td>
+            <td data-label="Fee">$75</td>
+            <td data-label="Processing time">7 business days</td>
+            <td data-label="Department">Planning</td>
+          </tr>
+          <tr>
+            <td data-label="Permit type">Food Vendor</td>
+            <td data-label="Fee">$110</td>
+            <td data-label="Processing time">14 business days</td>
+            <td data-label="Department">Health</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============================ LISTS ============================ -->
+  <h2>A one-dimensional list → arrange it</h2>
+  <p class="lead">A list of city services isn't tabular — it's a sequence of items. There's
+  no "right" element beyond a list; the question is how to <em>arrange</em> it so it doesn't
+  waste a tall, skinny column. Same 20 items below, three tools. Drag each box to compare.</p>
+
+  <h3>Flexbox — content-driven</h3>
+  <div class="note">Items size to their <strong>content</strong> and wrap. The right edge is
+  <strong>ragged</strong> and columns don't line up, because each item is only as wide as its
+  text. Reach for flexbox when the content should decide the sizing (tags, buttons, nav).</div>
+  <div class="demo">
+    <div class="flow-flex">
+      <a class="item" href="#">Animal Control</a>
+      <a class="item" href="#">Assessor</a>
+      <a class="item" href="#">Building Permits</a>
+      <a class="item" href="#">Business Licenses</a>
+      <a class="item" href="#">Elections</a>
+      <a class="item" href="#">Emerald Festival</a>
+      <a class="item" href="#">Fire Safety</a>
+      <a class="item" href="#">Forms &amp; Records</a>
+      <a class="item" href="#">Gatekeeper's Office</a>
+      <a class="item" href="#">Library</a>
+      <a class="item" href="#">Parking</a>
+      <a class="item" href="#">Parks &amp; Recreation</a>
+      <a class="item" href="#">Property Tax</a>
+      <a class="item" href="#">Public Transit</a>
+      <a class="item" href="#">Recycling</a>
+      <a class="item" href="#">Street Maintenance</a>
+      <a class="item" href="#">Utilities</a>
+      <a class="item" href="#">Voter Registration</a>
+      <a class="item" href="#">Water Billing</a>
+      <a class="item" href="#">Zoning</a>
+    </div>
+  </div>
+
+  <h3>Grid — layout-driven</h3>
+  <div class="note">Equal columns, aligned <strong>both</strong> horizontally and vertically,
+  packing in as many as fit via <code>repeat(auto-fit, minmax(9rem, 1fr))</code> — and it
+  reflows with <strong>no media query</strong>. This is the set-and-forget pattern most
+  long lists want.</div>
+  <div class="demo">
+    <div class="flow-grid">
+      <a class="item" href="#">Animal Control</a>
+      <a class="item" href="#">Assessor</a>
+      <a class="item" href="#">Building Permits</a>
+      <a class="item" href="#">Business Licenses</a>
+      <a class="item" href="#">Elections</a>
+      <a class="item" href="#">Emerald Festival</a>
+      <a class="item" href="#">Fire Safety</a>
+      <a class="item" href="#">Forms &amp; Records</a>
+      <a class="item" href="#">Gatekeeper's Office</a>
+      <a class="item" href="#">Library</a>
+      <a class="item" href="#">Parking</a>
+      <a class="item" href="#">Parks &amp; Recreation</a>
+      <a class="item" href="#">Property Tax</a>
+      <a class="item" href="#">Public Transit</a>
+      <a class="item" href="#">Recycling</a>
+      <a class="item" href="#">Street Maintenance</a>
+      <a class="item" href="#">Utilities</a>
+      <a class="item" href="#">Voter Registration</a>
+      <a class="item" href="#">Water Billing</a>
+      <a class="item" href="#">Zoning</a>
+    </div>
+  </div>
+
+  <h3>Multi-column — when reading order matters</h3>
+  <div class="note">For an alphabetical or sequential list you often want to read
+  <strong>down</strong> each column, then across — like a phone book. Grid and flexbox flow
+  across-then-down and can't do this. <code>columns: 9rem</code> can, and it also reflows
+  with no media query. The right tool for A–Z indexes.</div>
+  <div class="demo">
+    <nav class="flow-columns" aria-label="Services A–Z">
+      <a class="item" href="#">Animal Control</a>
+      <a class="item" href="#">Assessor</a>
+      <a class="item" href="#">Building Permits</a>
+      <a class="item" href="#">Business Licenses</a>
+      <a class="item" href="#">Elections</a>
+      <a class="item" href="#">Emerald Festival</a>
+      <a class="item" href="#">Fire Safety</a>
+      <a class="item" href="#">Forms &amp; Records</a>
+      <a class="item" href="#">Gatekeeper's Office</a>
+      <a class="item" href="#">Library</a>
+      <a class="item" href="#">Parking</a>
+      <a class="item" href="#">Parks &amp; Recreation</a>
+      <a class="item" href="#">Property Tax</a>
+      <a class="item" href="#">Public Transit</a>
+      <a class="item" href="#">Recycling</a>
+      <a class="item" href="#">Street Maintenance</a>
+      <a class="item" href="#">Utilities</a>
+      <a class="item" href="#">Voter Registration</a>
+      <a class="item" href="#">Water Billing</a>
+      <a class="item" href="#">Zoning</a>
+    </nav>
+  </div>
+
+  <!-- ============================ STRUCTURE ============================ -->
+  <h2>Structuring a whole page → grid outside, flex inside</h2>
+  <p class="lead">When you're building the page shell itself, the same distinction scales up.
+  Grid places the big regions (it's two-dimensional and you want named structure); flexbox
+  arranges what's <em>inside</em> a region (a single run of items, like the menu); and
+  <code>position: sticky</code> is a behavior you add on top — it needs neither grid nor flex.
+  Below: the header is sticky and uses flexbox for its logo + menu; the body is a grid whose
+  <code>grid-template-areas</code> get redrawn when the box gets narrow. Scroll it to see the
+  header stick; drag it to see the areas re-flow.</p>
+  <div class="skeleton">
+    <header class="sk-header">
+      <span class="sk-logo">◈ Emerald City</span>
+      <nav class="sk-nav" aria-label="Demo">
+        <a href="#">Home</a>
+        <a href="#">Services</a>
+        <a href="#">Government</a>
+        <a href="#">Contact</a>
+      </nav>
+    </header>
+    <div class="sk-canvas">
+      <div class="sk-body">
+        <main class="sk-main">
+          <p><strong>Main content.</strong> Scroll this box — the header stays pinned at the
+          top because it's <code>position: sticky</code>, independent of the grid.</p>
+          <p>The whole body is one grid. Its layout is written as a little map with
+          <code>grid-template-areas</code>: <code>"main aside" / "footer footer"</code>.</p>
+          <p>Drag the right edge in until it's narrow. The <code>@container</code> query
+          redraws the map to a single stacked column — no viewport media query involved.</p>
+          <p>This is the pattern behind most real pages: grid for the skeleton, flexbox for
+          the menu up top, sticky for the header behavior.</p>
+          <p>Rearranging the page later is just editing the little ASCII map — arguably the
+          most readable layout code there is.</p>
+        </main>
+        <aside class="sk-aside"><strong>aside</strong><br>Sidebar region, placed by the grid.</aside>
+        <footer class="sk-footer">footer — spans the full width in both layouts</footer>
+      </div>
+    </div>
+  </div>
+  <div class="note"><strong>The takeaway line:</strong> grid places the regions, flexbox
+  arranges what's in them, and sticky is a behavior added on top. If you're positioning in
+  two directions at once, that's grid; if it's a single run of items, that's flex.</div>
+
+  <!-- ============================ CHOOSING ============================ -->
+  <h2>How to choose</h2>
+  <div class="note" style="border-inline-start-color: var(--brand);">
+    <strong>Is it tabular data (records × fields)?</strong> Use a <code>&lt;table&gt;</code>,
+    then make it responsive (scroll = safest; reflow = prettier, test with a screen reader).<br><br>
+    <strong>Is it a list of items?</strong> Then arrange it:<br>
+    • <strong>Flexbox</strong> when the <em>content</em> sets the size and a ragged wrap is fine.<br>
+    • <strong>Grid</strong> (<code>auto-fit</code> + <code>minmax</code>) when you want tidy,
+    equal, aligned columns — the usual winner for long lists.<br>
+    • <strong>Columns</strong> (<code>columns</code>) when reading order down each column matters.<br><br>
+    <strong>Building the whole page shell?</strong> Grid places the regions
+    (<code>grid-template-areas</code>), flexbox arranges what's inside each one, and
+    <code>position: sticky</code> is a behavior on top.<br><br>
+    The one-line mental model: <strong>flexbox = one axis, content-driven; grid = two axes,
+    layout-driven.</strong> All of these reflow with no media query — they respond to available
+    space on their own.
+  </div>
+
+</div>
+</body>
+</html>
