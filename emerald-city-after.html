@@ -210,7 +210,8 @@
      auto-fill + minmax reflows 3→2→1 on its own. */
   .services {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    grid-auto-rows: 1fr;                   /* every card as tall as the tallest — symmetry across rows */
     gap: var(--gutter);
   }
   .card {
@@ -223,13 +224,6 @@
     &.featured { border-color: var(--accent); background: var(--brand-tint); }
     & .card-title { color: var(--brand); font-weight: 700; margin-block-end: 0.35rem; }
     & p { font-size: 0.85rem; color: var(--text-muted); }
-
-    /* the card adapts to its container, not the viewport — so a card in the
-       narrow sidebar can differ from the same card in the wide column */
-    @container (max-width: 12rem) {
-      & p { display: none; }
-      & .card-title { font-size: 0.9rem; }
-    }
   }
 
   /* announcements: native disclosure — <details> replaces the jQuery slide */
