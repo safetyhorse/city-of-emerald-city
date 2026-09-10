@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<!--
+  LIVE-EDIT PEN — Container queries: same component, two contexts.
+  The point of this demo: both columns below contain the EXACT same card
+  markup and the EXACT same CSS. The only thing that differs is how wide
+  each card's container is — and the card adapts to that, not to the window.
+
+  On stage:
+    1. Point out that the wide column's cards look different from the narrow
+       column's cards, even though the HTML is identical. That's the whole idea.
+    2. Drag the right edge of the wide column inward until its cards flip to
+       the compact layout — proving it's the CONTAINER'S width, not the
+       viewport's.
+    3. Edit the one number marked below and watch the flip point move.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Container query — same component, two contexts</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --brand: #046a38;
+    --accent: #f0c419;
+    --ink: light-dark(#1e2621, #e6efe9);
+    --muted: light-dark(#5f6f66, #9db4a8);
+    --surface: light-dark(#ffffff, #0f1512);
+    --surface-2: light-dark(#f4faf6, #17211c);
+    --border: light-dark(#d6e0da, #2c3a32);
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--surface);
+    line-height: 1.5;
+    margin: 0;
+    padding: 1.5rem;
+  }
+  h1 { color: var(--brand); font-size: 1.3rem; margin: 0 0 0.25rem; }
+  .lead { color: var(--muted); font-size: 0.9rem; margin: 0 0 1.25rem; max-inline-size: 46rem; }
+
+  /* the two contexts, stacked so the narrow one stays put while you drag the wide one */
+  .stage { display: grid; gap: 1.5rem; justify-items: start; }
+  .col { display: grid; gap: 0.75rem; align-content: start; padding: 1em; border: 2px solid var(--brand); border-radius: var(--radius);}
+  .col-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .col-wide {
+    inline-size: 32rem;
+    max-inline-size: 100%;
+    resize: horizontal;          /* drag this column narrower on stage */
+    overflow: auto;
+    min-inline-size: 12rem;
+    padding-block-end: 0.5rem;
+  }
+  .col-narrow { inline-size: 16rem; }
+
+  /* ---------------------------------------------------------------
+     THE CARD. It declares itself a container, then styles its own
+     insides based on its own width. Identical everywhere it appears.
+     --------------------------------------------------------------- */
+  .card {
+    container-type: inline-size;   /* "measure ME, not the viewport" */
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+  }
+  .card-inner {
+    display: flex;
+    flex-direction: column;        /* compact default (narrow container) */
+    gap: 0.5rem;
+    padding: 0.85rem;
+  }
+  .icon {
+    inline-size: 2rem; aspect-ratio: 1;
+    display: grid; place-items: center;
+    background: var(--brand); color: #fff;
+    border-radius: 6px; font-weight: 700;
+  }
+  .title { font-weight: 700; color: var(--brand); }
+  .desc  { display: none; font-size: 0.85rem; color: var(--muted); }  /* hidden when compact */
+
+  /* ===============================================================
+     When the CARD's container is wide enough, switch to a roomy
+     horizontal layout and reveal the description.
+
+              ↓↓↓  EDIT THIS ONE NUMBER LIVE  ↓↓↓                     */
+  @container (min-width: 20rem) {
+  /*          ↑↑↑  try 13rem, 26rem, 30rem  ↑↑↑                     */
+    .card-inner { flex-direction: row; align-items: center; gap: 0.85rem; }
+    .icon { inline-size: 3rem; font-size: 1.2rem; }
+    .desc { display: block; }
+  }
+  /* =============================================================== */
+</style>
+</head>
+<body>
+
+  <h1>Same component, two contexts</h1>
+  <p class="lead">Both columns hold the <strong>identical</strong> card markup and CSS. The
+  wide column's cards go horizontal and show their description; the narrow column's cards go
+  compact and hide it based solely on the container width. 
+  Drag the right edge of the wide column inward and watch its cards flip.</p>
+
+  <div class="stage">
+
+    
+
+    <div class="col col-narrow">
+      <div class="col-label">Narrow container</div>
+
+      <article class="card">
+        <div class="card-inner">
+          <div class="icon">◈</div>
+          <div>
+            <div class="title">Pay Utility Bill</div>
+            <div class="desc">Pay your water, sewer, and refuse bill online with a card or bank account.</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-inner">
+          <div class="icon">◈</div>
+          <div>
+            <div class="title">Building Permits</div>
+            <div class="desc">Apply for residential and commercial permits and check application status.</div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="col col-wide">
+      <div class="col-label">Wide container ↔ drag me</div>
+
+      <article class="card">
+        <div class="card-inner">
+          <div class="icon">◈</div>
+          <div>
+            <div class="title">Pay Utility Bill</div>
+            <div class="desc">Pay your water, sewer, and refuse bill online with a card or bank account.</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-inner">
+          <div class="icon">◈</div>
+          <div>
+            <div class="title">Building Permits</div>
+            <div class="desc">Apply for residential and commercial permits and check application status.</div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+  </div>
+
+</body>
+</html>
