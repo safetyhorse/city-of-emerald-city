@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<!--
+  LIVE-EDIT PEN — Logical properties: think start/end, not left/right.
+  Two identical-looking boxes. One uses PHYSICAL properties (border-left,
+  padding-left, text-align:left); the other LOGICAL ones (border-inline-start,
+  padding-inline-start, text-align:start).
+
+  Switch between three writing modes:
+    • Left-to-right  (English)      — inline axis runs left→right
+    • Right-to-left  (Arabic)       — inline axis runs right→left
+    • Vertical       (Japanese)     — inline axis runs TOP→BOTTOM, columns right→left
+
+  The logical box follows the flow in every mode. The physical box stays glued
+  to the left. Same shift in thinking as flexbox and grid: describe layout by
+  the flow of content, not the screen's fixed edges.
+
+  The switch is pure CSS (radio buttons + :has), so there's no JavaScript.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logical properties — start/end, not left/right</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --brand: #046a38;
+    --accent: #f0c419;
+    --ink: light-dark(#1e2621, #e6efe9);
+    --muted: light-dark(#5f6f66, #9db4a8);
+    --surface: light-dark(#ffffff, #0f1512);
+    --surface-2: light-dark(#f4faf6, #17211c);
+    --border: light-dark(#d6e0da, #2c3a32);
+    --danger: light-dark(#b00020, #ff8a95);
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--surface);
+    line-height: 1.5;
+    margin: 0;
+    padding: 1.5rem;
+  }
+  h1 { color: var(--brand); font-size: 1.3rem; margin: 0 0 0.25rem; }
+  .lead { color: var(--muted); font-size: 0.9rem; margin: 0 0 1.25rem; max-inline-size: 48rem; }
+
+  /* the 3-way control */
+  .switch {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.5rem 0.85rem;
+    margin: 0 0 0.5rem;
+    display: inline-flex; flex-wrap: wrap; gap: 0.25rem 1rem;
+  }
+  .switch legend { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); padding-inline: 0.25rem; }
+  .switch label { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; cursor: pointer; }
+  .switch input { accent-color: var(--brand); inline-size: 1.05rem; aspect-ratio: 1; }
+
+  .mode { font-size: 0.85rem; color: var(--muted); margin-block-end: 1.25rem; }
+  .mode b { color: var(--brand); }
+  .show-rtl, .show-vert { display: none; }
+  .pen:has(#m-rtl:checked)  .show-ltr  { display: none; }
+  .pen:has(#m-rtl:checked)  .show-rtl  { display: inline; }
+  .pen:has(#m-vert:checked) .show-ltr  { display: none; }
+  .pen:has(#m-vert:checked) .show-vert { display: inline; }
+
+  /* the two boxes, staying put; only their INSIDES change mode */
+  .stage { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem; }
+  .col-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-block-end: 0.4rem; }
+  .col-label.bad  { color: var(--danger); }
+  .col-label.good { color: var(--brand); }
+
+  .box {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem;
+    min-height: 7rem;
+  }
+  .box strong { color: var(--brand); }
+  .box .greet { font-size: 1.5rem; margin-block: 0.3rem 0; }
+  .box .note  { color: var(--muted); font-size: 0.8rem; margin-block-start: 0.4rem; }
+
+  /* ---- PHYSICAL: hard-coded to the left. Ignores the writing mode. ---- */
+  .box.physical {
+    border-left: 4px solid var(--accent);   /* always the left edge */
+    padding-left: 1.4rem;                    /* always the left edge */
+    text-align: left;                        /* always the left edge */
+  }
+
+  /* ---- LOGICAL: anchored to the START of the flow. Follows the writing mode. ---- */
+  .box.logical {
+    border-inline-start: 4px solid var(--accent);   /* start edge */
+    padding-inline-start: 1.4rem;                   /* start edge */
+    text-align: start;                              /* start edge */
+  }
+
+  /* right-to-left: the inline axis reverses (real sites get this from the dir
+     attribute or the user's language; simulated here so one control drives it) */
+  .pen:has(#m-rtl:checked) .box { direction: rtl; }
+
+  /* vertical Japanese: the inline axis becomes TOP→BOTTOM, columns stack right→left.
+     Now "inline-start" means the TOP — and the logical box's accent moves there. */
+  .pen:has(#m-vert:checked) .box {
+    writing-mode: vertical-rl;
+    min-height: 0;
+    height: 12rem;                            /* vertical room so text forms columns */
+  }
+
+  /* code captions stay horizontal LTR so they're always readable */
+  .code {
+    direction: ltr; text-align: left; writing-mode: horizontal-tb;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.75rem; color: var(--muted);
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 0.6rem 0.75rem;
+    margin-block-start: 0.5rem; white-space: pre; overflow-x: auto;
+  }
+
+  /* mapping legend — doubles as a take-home reference */
+  .legend { margin-block-start: 2rem; }
+  .legend h2 { font-size: 1rem; color: var(--brand); border-block-end: 2px solid var(--accent); padding-block-end: 0.3rem; }
+  .legend table { border-collapse: collapse; inline-size: 100%; max-inline-size: 42rem; font-size: 0.85rem; }
+  .legend td { padding: 0.35rem 0.5rem; border-block-end: 1px solid var(--border); }
+  .legend td:first-child { color: var(--muted); }
+  .legend code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.95em; }
+  .arrow { color: var(--brand); padding-inline: 0.4rem; }
+  .footnote { font-size: 0.8rem; color: var(--muted); margin-block-start: 1rem; max-inline-size: 48rem; }
+</style>
+</head>
+<body>
+<div class="pen">
+
+  <h1>Think start / end, not left / right</h1>
+  <p class="lead">The same shift flexbox and grid brought: describe layout by the flow of
+  content — <em>inline</em> and <em>block</em>, <em>start</em> and <em>end</em> — not the
+  screen's fixed edges. The reason it matters isn't only right-to-left languages; it's that
+  one set of properties handles English, Arabic, <em>and</em> vertical Japanese, because they
+  respond to both <code>direction</code> and <code>writing-mode</code>. Switch modes and watch
+  which box keeps up.</p>
+
+  <fieldset class="switch">
+    <legend>Writing mode</legend>
+    <label><input type="radio" name="mode" id="m-ltr" checked> Left-to-right</label>
+    <label><input type="radio" name="mode" id="m-rtl"> Right-to-left</label>
+    <label><input type="radio" name="mode" id="m-vert"> Vertical (Japanese)</label>
+  </fieldset>
+  <div class="mode">
+    Flow:
+    <span class="show-ltr"><b>left → right</b> — inline axis runs horizontally, start = left</span>
+    <span class="show-rtl"><b>right → left</b> — inline axis reverses, start = right</span>
+    <span class="show-vert"><b>top → bottom</b> — inline axis is vertical, start = top; columns stack right → left</span>
+  </div>
+
+  <div class="stage">
+
+    <div>
+      <div class="col-label bad">Physical — stays stuck on the left</div>
+      <div class="box physical">
+        <strong>left / right</strong>
+        <p class="greet" lang="ja">こんにちは</p>
+        <p class="note" dir="ltr">Accent, indent, and alignment are pinned left in every mode.</p>
+      </div>
+      <div class="code">border-left: 4px …
+padding-left: 1.4rem
+text-align: left</div>
+    </div>
+
+    <div>
+      <div class="col-label good">Logical — follows the flow</div>
+      <div class="box logical">
+        <strong>start / end</strong>
+        <p class="greet" lang="ja">こんにちは</p>
+        <p class="note" dir="ltr">Anchored to the start, so it moves to the right (RTL) or the top (vertical).</p>
+      </div>
+      <div class="code">border-inline-start: 4px …
+padding-inline-start: 1.4rem
+text-align: start</div>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <h2>The common swaps</h2>
+    <table>
+      <tr><td><code>margin-left</code> / <code>margin-right</code></td><td><span class="arrow">&rarr;</span></td><td><code>margin-inline-start</code> / <code>-end</code></td></tr>
+      <tr><td><code>padding-top</code> / <code>padding-bottom</code></td><td><span class="arrow">&rarr;</span></td><td><code>padding-block-start</code> / <code>-end</code></td></tr>
+      <tr><td><code>top</code> / <code>bottom</code> / <code>left</code> / <code>right</code></td><td><span class="arrow">&rarr;</span></td><td><code>inset-block-*</code> / <code>inset-inline-*</code></td></tr>
+      <tr><td><code>border-left</code></td><td><span class="arrow">&rarr;</span></td><td><code>border-inline-start</code></td></tr>
+      <tr><td><code>text-align: left</code></td><td><span class="arrow">&rarr;</span></td><td><code>text-align: start</code></td></tr>
+      <tr><td><code>width</code> / <code>height</code></td><td><span class="arrow">&rarr;</span></td><td><code>inline-size</code> / <code>block-size</code></td></tr>
+    </table>
+  </div>
+
+  <p class="footnote">Note: the English captions are marked <code>dir="ltr"</code> so they read
+  correctly even in right-to-left mode. Blanket-flipping a container to RTL leaves neutral
+  characters like periods resolving against the RTL context and jumping sides — which is exactly
+  why real sites set direction per the content's language rather than flipping everything at once.</p>
+
+</div>
+</body>
+</html>
