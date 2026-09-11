@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<!--
+  LIVE-EDIT PEN — :has(), the selector that looks UP.
+  For twenty years a CSS selector could only look DOWN the tree: style a child
+  based on its parent. :has() reverses it — style a parent based on what it
+  contains. That upward look is exactly what jQuery did on the "before" page,
+  walking the DOM with .closest(). Three flavors below, all pure CSS, no JS.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>:has() — the selector that looks up</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --brand: #046a38;
+    --accent: #f0c419;
+    --ink: light-dark(#1e2621, #e6efe9);
+    --muted: light-dark(#5f6f66, #9db4a8);
+    --surface: light-dark(#ffffff, #0f1512);
+    --surface-2: light-dark(#f4faf6, #17211c);
+    --border: light-dark(#d6e0da, #2c3a32);
+    --danger: light-dark(#b00020, #ff8a95);
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--ink); background: var(--surface);
+    line-height: 1.5; margin: 0; padding: 1.5rem;
+  }
+  h1 { color: var(--brand); font-size: 1.3rem; margin: 0 0 0.25rem; }
+  .lead { color: var(--muted); font-size: 0.9rem; margin: 0 0 1.5rem; max-inline-size: 48rem; }
+
+  .demo {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-block-end: 1.25rem;
+    max-inline-size: 34rem;
+  }
+  .demo h2 { font-size: 1rem; color: var(--brand); margin: 0 0 0.15rem; }
+  .demo .hint { font-size: 0.8rem; color: var(--muted); margin: 0 0 0.75rem; }
+
+  .code {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.75rem; color: var(--muted);
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 0.55rem 0.7rem;
+    margin-block-start: 0.75rem; white-space: pre-wrap;
+  }
+  .code b { color: var(--brand); }
+
+  /* ============================================================
+     1. Style a parent by what it contains — :has(:checked)
+     Click a row; the LABEL that contains the checked box highlights.
+     ============================================================ */
+  .options { display: grid; gap: 0.5rem; }
+  .option {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  .option input { accent-color: var(--brand); inline-size: 1.05rem; aspect-ratio: 1; }
+  .option:has(:checked) {
+    border-color: var(--brand);
+    background: color-mix(in oklab, var(--brand), var(--surface) 90%);
+    font-weight: 700;
+  }
+
+  /* ============================================================
+     2. React at a distance — a checkbox reveals a field elsewhere
+     The revealed field is NOT the checkbox's child; :has() lets the
+     whole form react and show it. (This is the old jQuery show/hide.)
+     ============================================================ */
+  .callback-field {
+    margin-block-start: 0.75rem;
+    display: none;                        /* hidden until requested */
+  }
+  .demo:has(#callback:checked) .callback-field { display: grid; gap: 0.25rem; }
+  .demo label.inline { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; }
+  .demo label.inline input { accent-color: var(--brand); inline-size: 1.05rem; aspect-ratio: 1; }
+  input[type="tel"], input[type="email"] {
+    padding: 0.5rem; border: 1px solid var(--border);
+    border-radius: var(--radius); background: var(--surface); color: var(--ink);
+    font: inherit; inline-size: 100%;
+  }
+  .field-label { font-weight: 700; color: var(--brand); font-size: 0.9rem; }
+
+  /* ============================================================
+     3. The upward look that replaced jQuery — :has(:user-invalid)
+     Type a bad email and click away: the whole field group lights up.
+     On the "before" page, jQuery did this with .closest('.field').
+     ============================================================ */
+  .field { display: grid; gap: 0.25rem; }
+  .field .err { color: var(--danger); font-size: 0.78rem; display: none; }
+  .field:has(:user-invalid) .field-label { color: var(--danger); }
+  .field:has(:user-invalid) input { border-color: var(--danger); }
+  .field:has(:user-invalid) .err { display: block; }
+</style>
+</head>
+<body>
+<div class="pen">
+
+  <h1>:has() — the selector that looks up</h1>
+  <p class="lead">Every selector you already know looks <em>down</em> the tree: a parent styles
+  its children. <code>:has()</code> is the first that looks <em>up</em> — style an element by
+  what it contains. That upward reach is the exact thing JavaScript used to do; on the "before"
+  page, jQuery walked the DOM with <code>.closest()</code> to pull it off.</p>
+
+  <!-- 1 -->
+  <div class="demo">
+    <h2>1. Style a parent by what it contains</h2>
+    <p class="hint">Check any service — the whole row reacts, because the row <em>contains</em> a checked box.</p>
+    <div class="options">
+      <label class="option"><input type="checkbox"> Pay a utility bill</label>
+      <label class="option"><input type="checkbox"> Apply for a permit</label>
+      <label class="option"><input type="checkbox"> Report a loose brick</label>
+      <label class="option"><input type="checkbox"> Reserve a park shelter</label>
+    </div>
+    <div class="code">.option<b>:has(:checked)</b> { border-color: var(--brand); … }</div>
+  </div>
+
+  <!-- 2 -->
+  <div class="demo">
+    <h2>2. React at a distance</h2>
+    <p class="hint">Tick the box — a field appears below it. The field isn't inside the checkbox; the whole form notices and reveals it.</p>
+    <label class="inline"><input type="checkbox" id="callback"> I'd like a callback about this request</label>
+    <div class="callback-field">
+      <span class="field-label">Phone number</span>
+      <input type="tel" placeholder="(555) 000-0000">
+    </div>
+    <div class="code">.demo<b>:has(#callback:checked)</b> .callback-field { display: grid; }</div>
+  </div>
+
+  <!-- 3 -->
+  <div class="demo">
+    <h2>3. The upward look that replaced jQuery</h2>
+    <p class="hint">Type a bad email address and click away. The whole field group lights up — no submit handler, no <code>.closest()</code>.</p>
+    <div class="field">
+      <span class="field-label">Email</span>
+      <input type="email" required placeholder="you@example.gov">
+      <span class="err">Please enter a valid email address.</span>
+    </div>
+    <div class="code">.field<b>:has(:user-invalid)</b> input { border-color: var(--danger); }</div>
+  </div>
+
+</div>
+</body>
+</html>
