@@ -94,12 +94,8 @@
     max-inline-size: 24rem;                       /* capped so it reliably wraps to 2–3 lines */
   }
   .wrap-auto    h3 { text-wrap: wrap; }        /* the default */
-  .wrap-balance { 
-    h3, p {text-wrap: balance; }
-  }
-  .wrap-pretty { 
-    h3, p {text-wrap: pretty; }
-  }
+  .wrap-balance { text-wrap: balance; }
+  .wrap-pretty { text-wrap: pretty; }
   .wrap-auto    p  { text-wrap: wrap; }
   .wrap-demo p { margin: 0; max-inline-size: 65ch; }  /* "measure": cap the line length (~65 chars) for readability */
   /* fixed two columns — always side by side, never reflows, so no bounce */
@@ -153,8 +149,8 @@
       </div>
     </div>
   </div>
-  <div class="code">h3 { <b>text-wrap: balance</b>; }   /* even out heading lines */
-p  { <b>text-wrap: pretty</b>;  }   /* no lone word on the last line */</div>
+  <div class="code">.wrap-balance { <b>text-wrap: balance</b>; }   /* even out heading lines */
+.wrap-pretty  { <b>text-wrap: pretty</b>;  }   /* no lone word on the last line */</div>
 
 </div>
 </body>
