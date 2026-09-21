@@ -94,12 +94,16 @@
     max-inline-size: 24rem;                       /* capped so it reliably wraps to 2–3 lines */
   }
   .wrap-auto    h3 { text-wrap: wrap; }        /* the default */
-  .wrap-balance h3 { text-wrap: balance; }
-  .wrap-pretty  p  { text-wrap: pretty; }
+  .wrap-balance { 
+    h3, p {text-wrap: balance; }
+  }
+  .wrap-pretty { 
+    h3, p {text-wrap: pretty; }
+  }
   .wrap-auto    p  { text-wrap: wrap; }
   .wrap-demo p { margin: 0; max-inline-size: 65ch; }  /* "measure": cap the line length (~65 chars) for readability */
   /* fixed two columns — always side by side, never reflows, so no bounce */
-  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .compare { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; }
   .panel { border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; min-inline-size: 0; }
   .panel .tag { display: block; margin-block-end: 0.5rem; }
 </style>
@@ -137,8 +141,13 @@
         <h3>Applications for the annual Emerald Festival are now open</h3>
         <p>Vendors, performers, and community groups are invited to apply for a booth before the October 3 deadline. Space along the Yellow Brick Road is limited this year, so residents are encouraged to submit their applications early.</p>
       </div>
-      <div class="panel wrap-balance wrap-pretty wrap-demo">
-        <span class="tag new">balance (heading) + pretty (body)</span>
+      <div class="panel wrap-balance wrap-demo">
+        <span class="tag new">balance</span>
+        <h3>Applications for the annual Emerald Festival are now open</h3>
+        <p>Vendors, performers, and community groups are invited to apply for a booth before the October 3 deadline. Space along the Yellow Brick Road is limited this year, so residents are encouraged to submit their applications early.</p>
+      </div>
+      <div class="panel wrap-pretty wrap-demo">
+        <span class="tag new">pretty</span>
         <h3>Applications for the annual Emerald Festival are now open</h3>
         <p>Vendors, performers, and community groups are invited to apply for a booth before the October 3 deadline. Space along the Yellow Brick Road is limited this year, so residents are encouraged to submit their applications early.</p>
       </div>
