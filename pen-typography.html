@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<!--
+  LIVE-EDIT PEN — Modern typography: clamp() and text-wrap.
+  Two ideas that each replace a pile of old workarounds:
+    1. clamp(MIN, PREFERRED, MAX) — fluid type in ONE line, instead of a
+       ladder of @media breakpoints resizing the heading step by step.
+    2. text-wrap: balance / pretty — the browser evens out heading lines and
+       prevents ugly single-word last lines ("orphans"), instead of hand-placed
+       <br> tags or a JavaScript line-balancer.
+
+  Each demo sits in a resizable box — drag the right edge to watch type respond.
+  No JavaScript in this file.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typography — clamp() and text-wrap</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --brand: #046a38;
+    --accent: #f0c419;
+    --ink: light-dark(#1e2621, #e6efe9);
+    --muted: light-dark(#5f6f66, #9db4a8);
+    --surface: light-dark(#ffffff, #0f1512);
+    --surface-2: light-dark(#f4faf6, #17211c);
+    --border: light-dark(#d6e0da, #2c3a32);
+    --danger: light-dark(#b00020, #ff8a95);
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--ink); background: var(--surface);
+    line-height: 1.5; margin: 0; padding: 1.5rem;
+  }
+  h1 { color: var(--brand); font-size: 1.3rem; margin: 0 0 0.25rem; }
+  .lead { color: var(--muted); font-size: 0.9rem; margin: 0 0 1.5rem; max-inline-size: 50rem; }
+  h2.sec { font-size: 1rem; color: var(--brand); border-block-end: 2px solid var(--accent); padding-block-end: 0.3rem; margin-block: 1.75rem 0.5rem; max-inline-size: 46rem; }
+  .hint { font-size: 0.82rem; color: var(--muted); margin: 0 0 0.6rem; max-inline-size: 46rem; }
+
+  /* resizable stage so type responds to available width, not the window */
+  .demo {
+    resize: horizontal; overflow: auto;
+    inline-size: 100%; min-inline-size: 14rem; max-inline-size: 46rem;
+    border: 1px dashed var(--border); border-radius: var(--radius);
+    padding: 1.25rem; background: var(--surface);
+  }
+  .demo.full { max-inline-size: none; }   /* text-wrap comparison wants the whole width */
+  .demo::after {
+    content: "↔ drag the right edge";
+    display: block; text-align: end;
+    font-size: 0.7rem; color: var(--muted); margin-block-start: 0.75rem;
+  }
+  .code {
+    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.75rem;
+    color: var(--muted); background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 0.55rem 0.7rem; margin-block-start: 0.5rem;
+    white-space: pre-wrap; max-inline-size: 46rem;
+  }
+  .code b { color: var(--brand); }
+  .tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .tag.old { color: var(--danger); }
+  .tag.new { color: var(--brand); }
+
+  /* ============================================================
+     1. clamp() — fluid type in one line
+     font-size: clamp(MIN, PREFERRED, MAX)
+       MIN       — never smaller than this
+       PREFERRED — the fluid target (here it grows with the container)
+       MAX       — never larger than this
+     ============================================================ */
+  .fluid {
+    font-size: clamp(1.5rem, 1rem + 4cqi, 3rem);   /* 4cqi = 4% of the container's inline size */
+    color: var(--brand); line-height: 1.1; margin: 0;
+  }
+  .demo.cq { container-type: inline-size; }         /* so cqi measures THIS box */
+
+  /* the old way, for contrast: a ladder of breakpoints */
+  .laddered { font-size: 1.5rem; color: var(--muted); line-height: 1.1; margin: 0; }
+  @media (min-width: 30rem) { .laddered { font-size: 2rem; } }
+  @media (min-width: 45rem) { .laddered { font-size: 2.5rem; } }
+  @media (min-width: 60rem) { .laddered { font-size: 3rem; } }
+
+  /* ============================================================
+     2. text-wrap: balance / pretty
+     balance — evens out the lines of a short block (great for headings)
+     pretty  — mainly prevents a lone word on the last line (orphans)
+     ============================================================ */
+  .wrap-demo h3 {
+    font-size: 1.5rem; color: var(--brand); line-height: 1.2;
+    margin: 0 auto 0.4rem; text-align: center;   /* centered — balance is most visible centered */
+    max-inline-size: 24rem;                       /* capped so it reliably wraps to 2–3 lines */
+  }
+  .wrap-auto    h3 { text-wrap: wrap; }        /* the default */
+  .wrap-balance h3 { text-wrap: balance; }
+  .wrap-pretty  p  { text-wrap: pretty; }
+  .wrap-auto    p  { text-wrap: wrap; }
+  .wrap-demo p { margin: 0; max-inline-size: 65ch; }  /* "measure": cap the line length (~65 chars) for readability */
+  /* fixed two columns — always side by side, never reflows, so no bounce */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .panel { border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; min-inline-size: 0; }
+  .panel .tag { display: block; margin-block-end: 0.5rem; }
+</style>
+</head>
+<body>
+<div class="pen">
+
+  <h1>Modern typography: <code>clamp()</code> and <code>text-wrap</code></h1>
+  <p class="lead">Two features that each delete a pile of old workarounds: <code>clamp()</code> makes
+  type fluid in one line instead of a breakpoint ladder, and <code>text-wrap</code> lets the browser
+  balance heading lines and kill orphan words instead of hand-placed <code>&lt;br&gt;</code> tags.</p>
+
+  <!-- ================= clamp() ================= -->
+  <h2 class="sec">1. <code>clamp()</code> — fluid type in one line</h2>
+  <p class="hint">Drag the box. The green heading scales smoothly with the container; the gray one
+  jumps in steps at fixed breakpoints — the old <code>@media</code> ladder. Same range, one line vs. four rules.</p>
+  <div class="demo cq">
+    <span class="tag new">clamp() — one fluid rule</span>
+    <p class="fluid">Pay a bill or apply for a permit</p>
+    <hr style="border:0;border-top:1px solid var(--border);margin:1rem 0;">
+    <span class="tag old">the old way — a breakpoint ladder</span>
+    <p class="laddered">Pay a bill or apply for a permit</p>
+  </div>
+  <div class="code">.fluid { font-size: <b>clamp(1.5rem, 1rem + 4cqi, 3rem)</b>; }
+/* min 1.5rem · grows with the container · max 3rem */</div>
+
+  <!-- ================= text-wrap ================= -->
+  <h2 class="sec">2. <code>text-wrap: balance</code> &amp; <code>pretty</code></h2>
+  <p class="hint">Drag to a width where the headings wrap to 2–3 lines. Balance evens the line
+  lengths; the default leaves a lopsided last line. Pretty keeps a lone word off the last line of body text.</p>
+  <div class="demo full">
+    <div class="compare">
+      <div class="panel wrap-auto wrap-demo">
+        <span class="tag old">default (text-wrap: wrap)</span>
+        <h3>Applications for the annual Emerald Festival are now open</h3>
+        <p>Vendors, performers, and community groups are invited to apply for a booth before the October 3 deadline. Space along the Yellow Brick Road is limited this year, so residents are encouraged to submit their applications early.</p>
+      </div>
+      <div class="panel wrap-balance wrap-pretty wrap-demo">
+        <span class="tag new">balance (heading) + pretty (body)</span>
+        <h3>Applications for the annual Emerald Festival are now open</h3>
+        <p>Vendors, performers, and community groups are invited to apply for a booth before the October 3 deadline. Space along the Yellow Brick Road is limited this year, so residents are encouraged to submit their applications early.</p>
+      </div>
+    </div>
+  </div>
+  <div class="code">h3 { <b>text-wrap: balance</b>; }   /* even out heading lines */
+p  { <b>text-wrap: pretty</b>;  }   /* no lone word on the last line */</div>
+
+</div>
+</body>
+</html>

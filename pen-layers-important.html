@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<!--
+  LIVE-EDIT PEN — Cascade layers & the !important escape hatch.
+  Two lessons in one small demo:
+    1. Layers beat specificity. A plain rule in a LATER layer wins over a
+       hyper-specific rule in an EARLIER layer — so you stop the specificity
+       arms race (and stop reaching for !important to win it).
+    2. But !important escapes the layer system entirely. A stray !important in
+       a LOW-priority layer still beats a "correct" rule in a HIGH-priority
+       layer, because !important jumps to a separate, higher tier of the
+       cascade. Layers organize NORMAL declarations; !important is not one.
+
+  THE LIVE MOMENT: Case 2 is purple because of the !important flagged below.
+  In DevTools, find `.case2 { background: ... !important }` in the framework
+  layer and delete the `!important` keyword. Case 2 snaps to green — proving
+  the ONLY cure is to remove it; no amount of layering beats it.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cascade layers & !important</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --brand: #046a38;
+    --accent: #f0c419;
+    --ink: light-dark(#1e2621, #e6efe9);
+    --muted: light-dark(#5f6f66, #9db4a8);
+    --surface: light-dark(#ffffff, #0f1512);
+    --surface-2: light-dark(#f4faf6, #17211c);
+    --border: light-dark(#d6e0da, #2c3a32);
+    --win-a: #7c3aed;   /* purple = "framework" layer won */
+    --win-b: #046a38;   /* green  = "overrides" layer won */
+    --radius: 8px;
+  }
+
+  /* ---- Declare the layer order ONCE. Later layers win for normal rules. ---- */
+  @layer framework, overrides;
+
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--ink); background: var(--surface);
+    line-height: 1.5; margin: 0; padding: 1.5rem;
+  }
+  h1 { color: var(--brand); font-size: 1.3rem; margin: 0 0 0.25rem; }
+  .lead { color: var(--muted); font-size: 0.9rem; margin: 0 0 1.5rem; max-inline-size: 50rem; }
+
+  .row { display: grid; grid-template-columns: 7rem 1fr; gap: 0.85rem; align-items: center; margin-block-end: 1rem; max-inline-size: 46rem; }
+  .swatch {
+    block-size: 3.25rem; border-radius: var(--radius);
+    display: grid; place-items: center;
+    color: #fff; font-weight: 700; font-size: 0.85rem;
+  }
+  .explain { font-size: 0.85rem; }
+  .explain b { color: var(--brand); }
+  .explain .lose { color: var(--muted); text-decoration: line-through; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.82em; background: var(--surface-2); padding: 0.05em 0.3em; border-radius: 3px; }
+
+  /* =====================================================================
+     CASE 1 — layers beat specificity.
+     framework uses a hyper-specific selector; overrides uses a plain class.
+     overrides is declared LATER, so it wins — specificity is irrelevant
+     across layers. Case 1 is GREEN.
+     ===================================================================== */
+  @layer framework {
+    body #main .panel .swatch.case1 { background: var(--win-a); }  /* 4 selectors, high specificity */
+  }
+  @layer overrides {
+    .case1 { background: var(--win-b); }                            /* 1 class, but a later layer */
+  }
+
+  /* =====================================================================
+     CASE 2 — !important escapes the layers.
+     Same setup, but the EARLIER framework layer marks its rule !important.
+     It wins anyway (Case 2 is PURPLE), because !important jumps out of the
+     normal cascade into a higher tier the layer order can't touch.
+
+     >>> LIVE DEMO: delete the `!important` on the next line in DevTools <<<
+     Case 2 will snap to green — the later layer wins again. The only cure
+     is removing !important; you cannot out-layer it.
+     ===================================================================== */
+  @layer framework {
+    .case2 { background: var(--win-a) !important; }   /* the stray !important */
+  }
+  @layer overrides {
+    .case2 { background: var(--win-b); }              /* later layer, normal rule → loses until !important goes */
+  }
+</style>
+</head>
+<body>
+<div class="pen">
+
+  <h1>Cascade layers &amp; the <code>!important</code> escape hatch</h1>
+  <p class="lead">Purple = a rule in the <b style="color:var(--win-a)">framework</b> layer won;
+  green = the <b style="color:var(--win-b)">overrides</b> layer won. Order is declared once:
+  <code>@layer framework, overrides;</code> — so for <em>normal</em> rules, overrides (later) always
+  wins, however specific the framework selector is.</p>
+
+  <div id="main">
+  <div class="panel">
+
+    <!-- CASE 1 -->
+    <div class="row">
+      <div class="swatch case1">Case 1</div>
+      <div class="explain">
+        <b>Layers beat specificity.</b> The framework rule has four selectors
+        (<code class="lose">body #main .panel .swatch</code>); overrides is one plain
+        <code>.case1</code>. The plain class still wins — it's in a later layer.
+        <em>This is why you no longer reach for <code>!important</code> to win a specificity fight.</em>
+      </div>
+    </div>
+
+    <!-- CASE 2 -->
+    <div class="row">
+      <div class="swatch case2">Case 2</div>
+      <div class="explain">
+        <b>But <code>!important</code> escapes the layers.</b> The framework layer marked its rule
+        <code>!important</code>, so it wins even though overrides is the later layer — the
+        <code>!important</code> jumps to a higher tier the layer order can't reach.
+        <em>Delete the <code>!important</code> in DevTools and watch Case 2 turn green: the only cure
+        is removing it. You can't out-layer it.</em>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
+</div>
+</body>
+</html>
