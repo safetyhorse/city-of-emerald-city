@@ -4,7 +4,7 @@
   For twenty years a CSS selector could only look DOWN the tree: style a child
   based on its parent. :has() reverses it — style a parent based on what it
   contains. That upward look is exactly what jQuery did on the "before" page,
-  walking the DOM with .closest(). Three flavors below, all pure CSS, no JS.
+  walking the DOM with .closest(). Four flavors below, all pure CSS, no JS.
 -->
 <html lang="en">
 <head>
@@ -51,6 +51,7 @@
     margin-block-start: 0.75rem; white-space: pre-wrap;
   }
   .code b { color: var(--brand); }
+  .field-label { font-weight: 700; color: var(--brand); font-size: 0.9rem; }
 
   /* ============================================================
      1. Style a parent by what it contains — :has(:checked)
@@ -72,7 +73,26 @@
   }
 
   /* ============================================================
-     2. React at a distance — a checkbox reveals a field elsewhere
+     2. Adapt the LAYOUT to the content — :has(img)
+     Same card, same class. The one that contains an <img> becomes a
+     two-column media object; the one without stays plain text. No
+     variant class, no JS deciding which template to use.
+     ============================================================ */
+  .svc-card {
+    display: grid; gap: 0.6rem;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 0.85rem; margin-block-end: 0.6rem;
+  }
+  .svc-card img {
+    inline-size: 100%; block-size: 4.5rem;
+    object-fit: cover; border-radius: calc(var(--radius) - 2px);
+  }
+  .svc-card .cardp { margin: 0; font-size: 0.82rem; color: var(--muted); }
+  /* WITH an image → two-column media layout */
+  .svc-card:has(img) { grid-template-columns: 8rem 1fr; align-items: center; }
+
+  /* ============================================================
+     3. React at a distance — a checkbox reveals a field elsewhere
      The revealed field is NOT the checkbox's child; :has() lets the
      whole form react and show it. (This is the old jQuery show/hide.)
      ============================================================ */
@@ -88,10 +108,9 @@
     border-radius: var(--radius); background: var(--surface); color: var(--ink);
     font: inherit; inline-size: 100%;
   }
-  .field-label { font-weight: 700; color: var(--brand); font-size: 0.9rem; }
 
   /* ============================================================
-     3. The upward look that replaced jQuery — :has(:user-invalid)
+     4. The upward look that replaced jQuery — :has(:user-invalid)
      Type a bad email and click away: the whole field group lights up.
      On the "before" page, jQuery did this with .closest('.field').
      ============================================================ */
@@ -109,7 +128,8 @@
   <p class="lead">Every selector you already know looks <em>down</em> the tree: a parent styles
   its children. <code>:has()</code> is the first that looks <em>up</em> — style an element by
   what it contains. That upward reach is the exact thing JavaScript used to do; on the "before"
-  page, jQuery walked the DOM with <code>.closest()</code> to pull it off.</p>
+  page, jQuery walked the DOM with <code>.closest()</code> to pull it off. It's far more than
+  forms — here are four flavors.</p>
 
   <!-- 1 -->
   <div class="demo">
@@ -126,7 +146,27 @@
 
   <!-- 2 -->
   <div class="demo">
-    <h2>2. React at a distance</h2>
+    <h2>2. Adapt the layout to the content</h2>
+    <p class="hint">Same card, same class. The one that <em>contains</em> an image lays out as a media object; the one without is plain text — no variant class, no JS choosing a template.</p>
+    <div class="svc-card">
+      <img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 90'%3E%3Crect width='120' height='90' fill='%23046a38'/%3E%3Cpath d='M18 68 L44 42 L58 56 L82 34 L104 68 Z' fill='%23f0c419'/%3E%3Ccircle cx='90' cy='26' r='9' fill='%23f0c419'/%3E%3C/svg%3E">
+      <div>
+        <div class="field-label">Parks &amp; Recreation</div>
+        <p class="cardp">Reserve a shelter, register for a program, or view park hours and maps.</p>
+      </div>
+    </div>
+    <div class="svc-card">
+      <div>
+        <div class="field-label">Report a Loose Brick</div>
+        <p class="cardp">Submit a service request for the Yellow Brick Road in your district.</p>
+      </div>
+    </div>
+    <div class="code">.card<b>:has(img)</b> { grid-template-columns: 8rem 1fr; }</div>
+  </div>
+
+  <!-- 3 -->
+  <div class="demo">
+    <h2>3. React at a distance</h2>
     <p class="hint">Tick the box — a field appears below it. The field isn't inside the checkbox; the whole form notices and reveals it.</p>
     <label class="inline"><input type="checkbox" id="callback"> I'd like a callback about this request</label>
     <div class="callback-field">
@@ -136,9 +176,9 @@
     <div class="code">.demo<b>:has(#callback:checked)</b> .callback-field { display: grid; }</div>
   </div>
 
-  <!-- 3 -->
+  <!-- 4 -->
   <div class="demo">
-    <h2>3. The upward look that replaced jQuery</h2>
+    <h2>4. The upward look that replaced jQuery</h2>
     <p class="hint">Type a bad email address and click away. The whole field group lights up — no submit handler, no <code>.closest()</code>.</p>
     <div class="field">
       <span class="field-label">Email</span>
