@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<!--
+  STUDY PEN — what clearfix solved, what it only half-solved, and how
+  display: flow-root compares.
+
+  Three columns, same markup, only the containment method differs:
+    A. nothing   B. clearfix   C. flow-root
+
+  Two problems:
+    1. Float containment — a floated child escaping its parent's background.
+    2. Margin collapse   — a child's top margin poking OUT of the parent's top.
+  clearfix fixes #1, NOT #2. flow-root fixes BOTH (it makes a block formatting
+  context, which contains floats AND seals margins against collapsing through).
+
+  KEY DETAIL: the parent boxes use `outline`, not `border`, to show their edges.
+  A top BORDER (or top padding) would itself stop margin collapse and hide the
+  bug. An outline draws the edge without affecting layout, so the collapse stays
+  visible. That subtlety is the whole reason this bug quietly "fixes itself" in
+  real code — someone adds padding and never learns what happened.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>flow-root vs clearfix — study</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --brand: #046a38;
+    --ink: light-dark(#1e2621, #e6efe9);
+    --muted: light-dark(#5f6f66, #9db4a8);
+    --surface: light-dark(#ffffff, #0f1512);
+    --surface-2: light-dark(#f4faf6, #17211c);
+    --danger: light-dark(#b00020, #ff8a95);
+    --radius: 8px;
+    /* loud page background: anything sitting on this has escaped its white parent */
+    --page: light-dark(#fce8b2, #3a3417);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--ink); background: var(--page);
+    line-height: 1.5; margin: 0; padding: 1.5rem;
+  }
+  h1 { color: var(--brand); font-size: 1.3rem; margin: 0 0 0.25rem; }
+  .lead { color: var(--muted); font-size: 0.9rem; margin: 0 0 1.5rem; max-inline-size: 52rem; }
+  h2.sec { font-size: 1.05rem; color: var(--brand); margin: 2rem 0 0.15rem; }
+  .hint { font-size: 0.82rem; color: var(--muted); margin: 0 0 0.9rem; max-inline-size: 52rem; }
+
+  .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; align-items: start; }
+  .tag {
+    display: block; font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-block-end: 0.35rem;
+  }
+  .tag.bad  { color: var(--danger); }
+  .tag.ok   { color: var(--muted); }
+  .tag.best { color: var(--brand); }
+
+  /* The parent box. Edges drawn with OUTLINE (not border) and NO padding,
+     so margin collapse stays visible. */
+  .parent {
+    background: var(--surface);
+    outline: 2px solid var(--brand);
+    border-radius: var(--radius);
+  }
+  .parent .floater {
+    float: left;
+    inline-size: 3rem; block-size: 6rem;      /* deliberately TALLER than the text beside it */
+    background: var(--brand); color: #fff;
+    border-radius: 6px;
+    display: grid; place-items: center;
+    font-size: 0.7rem; font-weight: 700;
+    margin-inline-end: 0.6rem;
+  }
+  .parent p { margin: 0; font-size: 0.85rem; }
+  .parent .heading {
+    margin-block-start: 3rem;                  /* the margin that tries to escape the top */
+    font-weight: 700; color: var(--brand); font-size: 0.95rem;
+  }
+  .parent .body { font-size: 0.85rem; margin: 0.4rem 0 0; }
+
+  .clearfix::after { content: ""; display: table; clear: both; }
+  .flow-root { display: flow-root; }
+
+  .note { font-size: 0.78rem; color: var(--muted); margin-block-start: 0.5rem; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.82em; background: var(--surface-2); padding: 0.05em 0.3em; border-radius: 3px; }
+
+  .legend { margin-block-start: 2rem; font-size: 0.85rem; color: var(--muted); max-inline-size: 52rem; }
+  .legend b { color: var(--brand); }
+</style>
+</head>
+<body>
+
+  <h1>What clearfix fixed — and what only <code>flow-root</code> fixes</h1>
+  <p class="lead">The yellow page shows through wherever a parent fails to contain its content:
+  the white box is the parent; anything on yellow has escaped it. Same markup in all three
+  columns — only the containment method changes. (Edges are drawn with <code>outline</code>, not
+  <code>border</code>, so a top border doesn't accidentally hide the margin bug.)</p>
+
+  <!-- PROBLEM 1 -->
+  <h2 class="sec">Problem 1 — float containment</h2>
+  <p class="hint">The green square is a tall floated child next to one short line. With no
+  containment the parent is only as tall as that line, so the float hangs out the bottom onto
+  yellow. <b>clearfix fixes this; so does flow-root.</b></p>
+  <div class="cols">
+    <div class="col">
+      <span class="tag bad">A · nothing</span>
+      <div class="parent">
+        <div class="floater">float</div>
+        <p>Short caption beside the float.</p>
+      </div>
+      <div class="note">float hangs out the bottom ↓</div>
+    </div>
+    <div class="col">
+      <span class="tag ok">B · clearfix</span>
+      <div class="parent clearfix">
+        <div class="floater">float</div>
+        <p>Short caption beside the float.</p>
+      </div>
+      <div class="note">contained ✓</div>
+    </div>
+    <div class="col">
+      <span class="tag best">C · flow-root</span>
+      <div class="parent flow-root">
+        <div class="floater">float</div>
+        <p>Short caption beside the float.</p>
+      </div>
+      <div class="note">contained ✓</div>
+    </div>
+  </div>
+
+  <!-- PROBLEM 2 -->
+  <h2 class="sec">Problem 2 — margin collapse (the one clearfix misses)</h2>
+  <p class="hint">The heading has <code>margin-block-start: 3rem</code>. With no BFC, that margin
+  collapses <em>through</em> the parent's top edge and pushes the whole white box down — leaving a
+  big yellow gap above it. <b>clearfix does NOT fix this; flow-root does.</b> Compare the gap above
+  each white box, and where the 3rem of space ends up (yellow = outside, white = inside).</p>
+  <div class="cols">
+    <div class="col">
+      <span class="tag bad">A · nothing</span>
+      <div class="parent">
+        <div class="heading">Heading with a 3rem top margin</div>
+        <p class="body">The margin escaped upward and shoved the box down — note the yellow gap above the white.</p>
+      </div>
+      <div class="note">yellow gap above the box ↑</div>
+    </div>
+    <div class="col">
+      <span class="tag bad">B · clearfix</span>
+      <div class="parent clearfix">
+        <div class="heading">Heading with a 3rem top margin</div>
+        <p class="body">clearfix clears floats only. The gap above is exactly as broken as column A.</p>
+      </div>
+      <div class="note">still broken — same gap ✗</div>
+    </div>
+    <div class="col">
+      <span class="tag best">C · flow-root</span>
+      <div class="parent flow-root">
+        <div class="heading">Heading with a 3rem top margin</div>
+        <p class="body">The BFC keeps the margin inside: white space sits above the heading, no yellow gap.</p>
+      </div>
+      <div class="note">margin sits inside the box ✓</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <p><b>Read Problem 2 like this:</b> in A and B the 3rem lives <em>above</em> the white box (it's
+    yellow — the margin pushed the box down). In C the 3rem lives <em>inside</em> the white box
+    (it's white space above the heading). Same margin, but flow-root keeps it contained.</p>
+    <p><b>The takeaway:</b> clearfix patched one symptom — escaping floats. <code>display: flow-root</code>
+    fixes the root cause by making the element a <b>block formatting context</b>, which contains floats
+    <em>and</em> seals margins (and makes backgrounds, borders, and shadows wrap real height). One honest
+    property replaces the hack and fixes a bug the hack never touched.</p>
+    <p><b>Try it:</b> add <code>padding: 1px</code> to <code>.parent</code> and watch Problem 2 vanish in
+    <em>all</em> columns — that's how this bug silently disappears from real stylesheets without anyone
+    understanding why.</p>
+  </div>
+
+</body>
+</html>
