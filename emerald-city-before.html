@@ -735,7 +735,7 @@ $(document).ready(function () {
   /* 4. "Container query" via jQuery: watch the window and tag narrow cards */
   function checkCardWidth() {
     $('.services .card').each(function () {
-      $(this).toggleClass('is-narrow', $(this).width() < 200);
+      $(this).toggleClass('is-narrow', $(this).width() < 250);
     });
   }
   $(window).resize(checkCardWidth);
