@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<!--
+  PEN — Tailwind, explained for people who've never used it.
+  Goal: recognize it in the wild, understand why people reach for it, and know
+  who it helps — without endorsing or dismissing it. The same button and card
+  are built twice: once with a semantic class + vanilla CSS, once with Tailwind
+  utility classes.
+
+  HONESTY NOTE: the Tailwind utility classes below are rendered by a small set
+  of hand-included rules (see the commented block) so this file runs OFFLINE
+  like the rest of the kit. In a REAL Tailwind v4 project you never write those
+  rules — a build step scans your markup and generates exactly the utilities you
+  used into one stylesheet. The class NAMES here are real Tailwind v4 names;
+  only how they're delivered differs.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tailwind — what it is and why people use it</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --brand: #046a38;
+    --accent: #f0c419;
+    --ink: light-dark(#1e2621, #e6efe9);
+    --muted: light-dark(#5f6f66, #9db4a8);
+    --surface: light-dark(#ffffff, #0f1512);
+    --surface-2: light-dark(#f4faf6, #17211c);
+    --border: light-dark(#d6e0da, #2c3a32);
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--ink); background: var(--surface);
+    line-height: 1.5; margin: 0; padding: 1.5rem;
+  }
+  h1 { color: var(--brand); font-size: 1.3rem; margin: 0 0 0.25rem; }
+  .lead { color: var(--muted); font-size: 0.9rem; margin: 0 0 1.5rem; max-inline-size: 52rem; }
+  h2.sec { font-size: 1.05rem; color: var(--brand); margin: 1.75rem 0 0.5rem; }
+
+  /* The comparison sits on a fixed light panel so both versions render
+     identically regardless of the viewer's light/dark setting. */
+  .stage {
+    color-scheme: light; background: #ffffff; color: #111;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.25rem; max-inline-size: 52rem;
+  }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  @media (max-width: 40rem) { .cols { grid-template-columns: 1fr; } }
+  .colhead { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #6b7280; margin-block-end: 0.5rem; }
+  .specimen { min-block-size: 3.5rem; display: flex; align-items: center; }
+  .code {
+    font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.72rem;
+    color: #374151; background: #f6f7f9; border: 1px solid #e5e7eb;
+    border-radius: 6px; padding: 0.55rem 0.65rem; margin-block-start: 0.6rem;
+    white-space: pre-wrap; word-break: break-word;
+  }
+
+  /* ===== vanilla: semantic class + real CSS rules ===== */
+  .btn-vanilla {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.5rem 1rem; border: 0; border-radius: 0.375rem;
+    background: #046a38; color: #fff; font-weight: 600; cursor: pointer;
+  }
+  .btn-vanilla:hover { background: #034a27; }
+  .card-vanilla {
+    max-width: 24rem; border: 1px solid #e5e7eb; border-radius: 0.5rem;
+    background: #fff; padding: 1rem; box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+  }
+  .card-vanilla h3 { color: #046a38; font-weight: 700; margin: 0 0 0.25rem; font-size: 1rem; }
+  .card-vanilla p { color: #4b5563; font-size: 0.875rem; margin: 0; }
+
+  /* ===== Tailwind-style utilities, HAND-INCLUDED for offline rendering =====
+     Real Tailwind generates these from your markup; shown here only so the
+     utility-class markup on the right actually renders. Names are authentic. */
+  .inline-flex { display: inline-flex; }
+  .items-center { align-items: center; }
+  .gap-2 { gap: 0.5rem; }
+  .px-4 { padding-inline: 1rem; }
+  .py-2 { padding-block: 0.5rem; }
+  .p-4 { padding: 1rem; }
+  .rounded-md { border-radius: 0.375rem; }
+  .rounded-lg { border-radius: 0.5rem; }
+  .border-0 { border: 0; }
+  .border { border-width: 1px; border-style: solid; }
+  .border-gray-200 { border-color: #e5e7eb; }
+  .bg-emerald-700 { background-color: #046a38; }
+  .bg-white { background-color: #fff; }
+  .text-white { color: #fff; }
+  .text-emerald-700 { color: #046a38; }
+  .text-gray-600 { color: #4b5563; }
+  .text-sm { font-size: 0.875rem; }
+  .font-semibold { font-weight: 600; }
+  .font-bold { font-weight: 700; }
+  .mb-1 { margin-bottom: 0.25rem; }
+  .max-w-sm { max-width: 24rem; }
+  .shadow-sm { box-shadow: 0 1px 2px rgb(0 0 0 / 0.08); }
+  .cursor-pointer { cursor: pointer; }
+  .hover\:bg-emerald-800:hover { background-color: #034a27; }
+
+  /* talking-points panel */
+  .points { max-inline-size: 52rem; }
+  .points .box { border: 1px solid var(--border); border-radius: var(--radius); padding: 0.9rem 1.1rem; margin-block-end: 0.8rem; background: var(--surface-2); }
+  .points h3 { margin: 0 0 0.3rem; color: var(--brand); font-size: 0.95rem; }
+  .points p, .points li { font-size: 0.86rem; }
+  .points ul { margin: 0; padding-inline-start: 1.1rem; }
+  .points li { margin-block: 0.2rem; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.82em; background: var(--surface-2); padding: 0.05em 0.3em; border-radius: 3px; }
+  .bridge { border-inline-start: 3px solid var(--accent); }
+</style>
+</head>
+<body>
+
+  <h1>Tailwind: what it is, and why people use it</h1>
+  <p class="lead">Tailwind is a <strong>utility-first</strong> CSS framework: instead of writing CSS rules
+  in a stylesheet, you style elements by stacking many small, single-purpose classes right in the markup.
+  Here's the same button and card built the familiar way (a semantic class + CSS) and the Tailwind way.</p>
+
+  <h2 class="sec">Same result, two philosophies</h2>
+  <div class="stage">
+    <div class="cols">
+      <div>
+        <div class="colhead">Vanilla — semantic class + CSS</div>
+        <div class="specimen"><button class="btn-vanilla">Pay now</button></div>
+        <div class="code">&lt;button class="btn"&gt;Pay now&lt;/button&gt;
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: .5rem 1rem;
+  border-radius: .375rem;
+  background: #046a38;
+  color: #fff;
+  font-weight: 600;
+}</div>
+      </div>
+      <div>
+        <div class="colhead">Tailwind — utility classes in markup</div>
+        <div class="specimen"><button class="inline-flex items-center gap-2 px-4 py-2 rounded-md border-0 bg-emerald-700 text-white font-semibold cursor-pointer hover:bg-emerald-800">Pay now</button></div>
+        <div class="code">&lt;button class="inline-flex items-center
+  gap-2 px-4 py-2 rounded-md
+  bg-emerald-700 text-white
+  font-semibold hover:bg-emerald-800"&gt;
+  Pay now
+&lt;/button&gt;
+
+/* no separate CSS file */</div>
+      </div>
+    </div>
+
+    <div class="cols" style="margin-block-start:1.25rem;">
+      <div>
+        <div class="colhead">Vanilla</div>
+        <div class="specimen">
+          <div class="card-vanilla">
+            <h3>Utility Bill</h3>
+            <p>Pay your water, sewer, and refuse bill online.</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="colhead">Tailwind</div>
+        <div class="specimen">
+          <div class="max-w-sm border border-gray-200 rounded-lg bg-white p-4 shadow-sm">
+            <h3 class="text-emerald-700 font-bold mb-1">Utility Bill</h3>
+            <p class="text-sm text-gray-600">Pay your water, sewer, and refuse bill online.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="sec">The 5-minute talking points</h2>
+  <div class="points">
+    <div class="box">
+      <h3>What it is</h3>
+      <p>A utility-first framework. You compose dozens of tiny classes (<code>px-4</code>, <code>bg-emerald-700</code>,
+      <code>font-semibold</code>) in the HTML instead of writing rules. A build step scans your markup and
+      generates a stylesheet containing only the utilities you actually used. Current release is Tailwind v4
+      (CSS-first config via <code>@theme</code>, a Rust build engine).</p>
+    </div>
+    <div class="box">
+      <h3>Why people use it</h3>
+      <ul>
+        <li><strong>Speed:</strong> no naming things, no switching between HTML and a CSS file.</li>
+        <li><strong>Consistency:</strong> utilities come from a constrained scale (spacing, color), so you get a design system's guardrails without building one.</li>
+        <li><strong>No dead CSS:</strong> unused utilities never ship; deleting a component deletes its styles with it.</li>
+        <li><strong>Fits components:</strong> in React/Vue/JSX, markup and styling live together, which many teams prefer.</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Who it helps</h3>
+      <p>Teams building app-like UIs in component frameworks; teams that want design-system discipline without
+      writing one; rapid prototyping; larger teams tired of CSS-naming debates. It shines where you control the
+      markup and already have a build pipeline.</p>
+    </div>
+    <div class="box">
+      <h3>The honest tradeoffs — especially for this room</h3>
+      <ul>
+        <li><strong>It needs a build step</strong> (Vite or PostCSS). If you can only inject a stylesheet into a CMS and can't touch the pipeline, that's a real barrier — the opposite of "just add CSS."</li>
+        <li><strong>Styling lives in markup,</strong> which couples structure to presentation; some find the long class lists hard to read.</li>
+        <li><strong>Dark mode and states add length:</strong> each needs its own variant (<code>dark:bg-...</code>, <code>hover:...</code>), so class lists grow.</li>
+        <li><strong>v4 targets modern browsers</strong> only (Safari 16.4+, Chrome 111+, Firefox 128+).</li>
+      </ul>
+    </div>
+    <div class="box bridge">
+      <h3>The non-dogmatic bridge</h3>
+      <p>Tailwind isn't opposed to the platform — <strong>Tailwind v4 is built on the very features in this talk:</strong>
+      cascade layers, <code>@property</code>, <code>color-mix()</code>, logical properties, container queries. And native
+      CSS has absorbed much of what people originally reached for Tailwind or Sass to get — variables, nesting, color
+      functions. So the honest takeaway isn't "use it" or "avoid it": it's a different workflow some teams choose, and
+      for many sites you may need less tooling than you think. When you see utility soup in the wild, now you know what
+      it is and why it's there.</p>
+    </div>
+  </div>
+
+</body>
+</html>
