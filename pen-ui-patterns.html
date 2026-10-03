@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!--
+  PEN — Common UI patterns, natively.
+  How far the platform has come on the patterns people used to pull in a JS
+  library for. The point is the SPECTRUM:
+    • Accordion — fully native, zero JS (<details name> for one-at-a-time)
+    • Modal     — native <dialog>, full modal semantics, ONE line of JS to open
+    • Popover   — native popover attribute, ZERO JS, declarative
+    • Tabs      — NOT solved accessibly in pure CSS yet; still needs real JS
+  Honesty is the lesson: solved / mostly solved / not yet.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Native UI patterns — accordion, modal, popover, tabs</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --brand: #046a38;
+    --accent: #f0c419;
+    --ink: light-dark(#1e2621, #e6efe9);
+    --muted: light-dark(#5f6f66, #9db4a8);
+    --surface: light-dark(#ffffff, #0f1512);
+    --surface-2: light-dark(#f4faf6, #17211c);
+    --border: light-dark(#d6e0da, #2c3a32);
+    --danger: light-dark(#b00020, #ff8a95);
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--ink); background: var(--surface);
+    line-height: 1.5; margin: 0; padding: 1.5rem;
+  }
+  h1 { color: var(--brand); font-size: 1.3rem; margin: 0 0 0.25rem; }
+  .lead { color: var(--muted); font-size: 0.9rem; margin: 0 0 1.5rem; max-inline-size: 50rem; }
+  h2.sec { font-size: 1.05rem; color: var(--brand); margin: 2rem 0 0.15rem; }
+  .verdict { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; display: inline-block; margin-inline-start: 0.5rem; padding: 0.05rem 0.45rem; border-radius: 10px; border: 1px solid currentColor; }
+  .v-yes  { color: var(--brand); }
+  .v-most { color: light-dark(#8a5a00, #f0c419); }
+  .v-no   { color: var(--danger); }
+  .hint { font-size: 0.82rem; color: var(--muted); margin: 0.1rem 0 0.8rem; max-inline-size: 50rem; }
+  .demo { border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; max-inline-size: 36rem; background: var(--surface-2); }
+  .code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.74rem; color: var(--muted); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.55rem 0.7rem; margin-block-start: 0.6rem; white-space: pre-wrap; max-inline-size: 50rem; }
+  .code b { color: var(--brand); }
+
+  .btn {
+    font: inherit; font-weight: 700; cursor: pointer;
+    padding: 0.5rem 1rem; border: 0; border-radius: var(--radius);
+    background: var(--brand); color: #fff;
+  }
+  .btn:hover { background: color-mix(in oklab, var(--brand), black 18%); }
+
+  /* ---------- Accordion: <details name> ---------- */
+  details.acc {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--surface); margin-block-end: 0.5rem; overflow: hidden;
+  }
+  details.acc summary {
+    cursor: pointer; padding: 0.7rem 0.9rem; font-weight: 700; color: var(--brand);
+    list-style: none;
+  }
+  details.acc summary::-webkit-details-marker { display: none; }
+  details.acc summary::before { content: "▸ "; color: var(--muted); }
+  details.acc[open] summary::before { content: "▾ "; }
+  details.acc .body { padding: 0 0.9rem 0.8rem; font-size: 0.88rem; color: var(--muted); }
+
+  /* ---------- Modal: <dialog> ---------- */
+  dialog {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.25rem; max-inline-size: 26rem;
+    background: var(--surface); color: var(--ink);
+  }
+  dialog::backdrop { background: rgb(0 0 0 / 0.5); }   /* the dimmed overlay — free */
+  dialog h3 { margin: 0 0 0.5rem; color: var(--brand); }
+  dialog p { margin: 0 0 1rem; font-size: 0.9rem; }
+  dialog .row { display: flex; gap: 0.5rem; justify-content: flex-end; }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--border); }
+
+  /* ---------- Popover: popover attribute ---------- */
+  [popover] {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1rem; max-inline-size: 22rem;
+    background: var(--surface); color: var(--ink);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+  }
+  [popover]::backdrop { background: rgb(0 0 0 / 0.1); }
+  [popover] p { margin: 0; font-size: 0.9rem; }
+
+  /* ---------- Tabs (CSS-only, DELIBERATELY as a cautionary demo) ---------- */
+  .tabs { max-inline-size: 36rem; }
+  .tabs .tablist { display: flex; gap: 0.25rem; border-block-end: 2px solid var(--border); }
+  .tabs .tablist label {
+    padding: 0.5rem 0.9rem; cursor: pointer; font-weight: 700; color: var(--muted);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .tabs input { position: absolute; opacity: 0; pointer-events: none; }
+  .tabs .panel { display: none; padding: 0.9rem 0.2rem; font-size: 0.9rem; }
+  #tab1:checked ~ .tablist label[for="tab1"],
+  #tab2:checked ~ .tablist label[for="tab2"],
+  #tab3:checked ~ .tablist label[for="tab3"] { color: var(--brand); border-block-end: 2px solid var(--brand); margin-block-end: -2px; }
+  #tab1:checked ~ .panels #p1,
+  #tab2:checked ~ .panels #p2,
+  #tab3:checked ~ .panels #p3 { display: block; }
+  .warnbox { border: 1px solid var(--danger); border-radius: var(--radius); padding: 0.8rem 1rem; margin-block-start: 0.8rem; font-size: 0.83rem; max-inline-size: 50rem; }
+  .warnbox b { color: var(--danger); }
+</style>
+</head>
+<body>
+
+  <h1>Common UI patterns, natively</h1>
+  <p class="lead">How far the platform has come on the things people used to reach for a JavaScript
+  library to build. The real lesson is the spectrum — some are fully solved, some need a line of JS,
+  one isn't there yet. Being honest about which is which is the point.</p>
+
+  <!-- ACCORDION -->
+  <h2 class="sec">Accordion <span class="verdict v-yes">native · 0 JS</span></h2>
+  <p class="hint">Stacked <code>&lt;details&gt;</code> elements. Give them a shared <code>name</code> and
+  only one opens at a time — the browser enforces it. Keyboard and screen-reader support are built in.</p>
+  <div class="demo" style="background:transparent;border:0;padding:0;">
+    <details class="acc" name="faq" open>
+      <summary>How do I pay my utility bill?</summary>
+      <div class="body">Pay online with a card or bank account, or in person at City Hall, 1 Emerald Plaza.</div>
+    </details>
+    <details class="acc" name="faq">
+      <summary>When is trash collected?</summary>
+      <div class="body">Collection day depends on your district — look it up by address on the Services page.</div>
+    </details>
+    <details class="acc" name="faq">
+      <summary>How do I report a loose brick?</summary>
+      <div class="body">Submit a service request for the Yellow Brick Road and we'll dispatch a crew.</div>
+    </details>
+  </div>
+  <div class="code">&lt;details <b>name="faq"</b>&gt;&lt;summary&gt;…&lt;/summary&gt; … &lt;/details&gt;
+/* shared name = only one open at a time, no JS */</div>
+
+  <!-- MODAL -->
+  <h2 class="sec">Modal <span class="verdict v-most">native element · you drive it with JS</span></h2>
+  <p class="hint">The <code>&lt;dialog&gt;</code> element gives you the dimmed <code>::backdrop</code>, focus
+  trapping, Escape-to-close, and top-layer stacking (no z-index wars) for free — richer than a popover.
+  You drive it with a little JS: <code>.showModal()</code> to open, <code>.close()</code> to close.
+  <strong>One real gotcha:</strong> clicking the backdrop does <em>not</em> close it by default — add the
+  newer <code>closedby="any"</code> attribute (or a one-line listener) for click-outside dismiss.</p>
+  <div class="demo">
+    <button class="btn" onclick="document.getElementById('dlg').showModal()">Open modal</button>
+    <dialog id="dlg" closedby="any">
+      <h3>Confirm submission</h3>
+      <p>Send this service request to Public Works?</p>
+      <div class="row">
+        <button class="btn ghost" type="button" onclick="document.getElementById('dlg').close()">Cancel</button>
+        <button class="btn" type="button" onclick="document.getElementById('dlg').close()">Submit</button>
+      </div>
+    </dialog>
+  </div>
+  <div class="code">&lt;dialog id="dlg" <b>closedby="any"</b>&gt;…&lt;/dialog&gt;   /* click-outside closes (newer attribute) */
+dlg.<b>showModal()</b>  // open      dlg.<b>close()</b>  // close
+/* free: ::backdrop, focus trap, Esc, top layer.  NOT free: backdrop-click (closedby, or a JS line) */
+/* zero-JS close alternative: put buttons in &lt;form method="dialog"&gt; */</div>
+
+  <!-- POPOVER -->
+  <h2 class="sec">Popover <span class="verdict v-yes">native · 0 JS</span></h2>
+  <p class="hint">For lighter overlays — menus, tips, non-modal panels — the <code>popover</code> attribute
+  opens and closes with <em>zero</em> JavaScript, wired up by <code>popovertarget</code>. Also uses the top
+  layer, also light-dismisses (click outside / Escape).</p>
+  <div class="demo">
+    <button class="btn" popovertarget="tip">Show office hours</button>
+    <div id="tip" popover>
+      <p>City Hall is open Monday–Friday, 8 a.m.–5 p.m. Closed weekends and holidays.</p>
+    </div>
+  </div>
+  <div class="code">&lt;button <b>popovertarget="tip"</b>&gt;Show office hours&lt;/button&gt;
+&lt;div id="tip" <b>popover</b>&gt;…&lt;/div&gt;
+/* opens, closes, light-dismisses — no JavaScript at all */</div>
+
+  <!-- TABS -->
+  <h2 class="sec">Tabs <span class="verdict v-no">not solved in pure CSS</span></h2>
+  <p class="hint">You <em>can</em> switch panels with hidden radios + <code>:checked</code> (below, and it
+  works visually) — but it is <strong>not accessible</strong>, which disqualifies it for real use.</p>
+  <div class="demo">
+    <div class="tabs">
+      <input type="radio" name="tabs" id="tab1" checked>
+      <input type="radio" name="tabs" id="tab2">
+      <input type="radio" name="tabs" id="tab3">
+      <div class="tablist">
+        <label for="tab1">Residents</label>
+        <label for="tab2">Business</label>
+        <label for="tab3">Visitors</label>
+      </div>
+      <div class="panels">
+        <div class="panel" id="p1">Permits, utility bills, trash pickup, and park reservations.</div>
+        <div class="panel" id="p2">Licenses, bids &amp; RFPs, and zoning information.</div>
+        <div class="panel" id="p3">Maps, event calendar, and the Emerald Festival schedule.</div>
+      </div>
+    </div>
+  </div>
+  <div class="warnbox">
+    <b>Why this is a cautionary demo, not a recommendation:</b> real tabs need arrow-key navigation,
+    the <code>tablist</code>/<code>tab</code>/<code>tabpanel</code> ARIA roles, and managed focus — none of
+    which the CSS-only version provides. It looks like tabs but doesn't behave like tabs for keyboard and
+    screen-reader users. Tabs still need real JavaScript (or a vetted component) to be accessible. There's
+    a native tabs proposal in progress, but it isn't here yet.
+  </div>
+
+  <div class="code" style="margin-block-start:1.5rem;">The spectrum: accordion = fully native · modal = native element + 1 line · popover = fully native · tabs = still needs JS.
+Honest beat for the talk: CSS caught up on a lot — not everything. Say which is which.</div>
+
+<script>
+  /* Light-dismiss fallback: if the browser doesn't support the closedby
+     attribute yet, close the modal when the backdrop (the dialog element
+     itself) is clicked. Where closedby IS supported, it already handles this. */
+  (function () {
+    var dlg = document.getElementById('dlg');
+    if (dlg && !('closedBy' in dlg)) {
+      dlg.addEventListener('click', function (e) {
+        if (e.target === dlg) dlg.close();
+      });
+    }
+  })();
+</script>
+</body>
+</html>
