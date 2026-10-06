@@ -26,7 +26,7 @@
     line-height: 1.45;
     font-size: 14px;
   }
-  .sheet { max-width: 60rem; margin-inline: auto; padding: 1.5rem; }
+  .sheet { max-inline-size: 60rem; margin-inline: auto; padding: 1.5rem; }
   header {
     border-bottom: 3px solid var(--accent);
     padding-bottom: 0.6rem;
@@ -80,7 +80,7 @@
     <tbody>
       <tr>
         <td class="old"><code>.clearfix</code> + <code>float</code> columns</td>
-        <td>Flexbox &amp; Grid with <code>gap</code></td>
+        <td>Flexbox &amp; Grid with <code>gap</code><br><span class="note" style="display:block">Still have floats you can't restructure? <code>display: flow-root</code> is the one-line clearfix — it contains them by establishing a block formatting context.</span></td>
         <td><span class="badge b-widely">WIDELY</span></td>
         <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout">Grid</a></td>
       </tr>
@@ -166,7 +166,7 @@
       </tr>
       <tr>
         <td class="old">Sass variables</td>
-        <td>Custom properties <code>--x</code> (+ typed <code>@property</code>)</td>
+        <td>Custom properties <code>--x</code><br><span class="note" style="display:block">Typed/animatable variants via <code>@property</code> are <span class="badge b-newly">NEWLY</span>.</span></td>
         <td><span class="badge b-widely">WIDELY</span></td>
         <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/--*">Custom properties</a></td>
       </tr>
@@ -228,7 +228,7 @@
       <tr>
         <td class="old">Two hand-maintained color themes</td>
         <td><code>color-scheme</code> + <code>light-dark()</code></td>
-        <td><span class="badge b-newly">NEWLY</span></td>
+        <td><span class="badge b-newly">NEWLY</span> <span class="note" style="display:inline">(&rarr; Widely ~Nov 2026)</span></td>
         <td><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark">light-dark()</a></td>
       </tr>
       <tr>
